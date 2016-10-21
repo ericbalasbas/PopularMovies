@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.net.ConnectivityManager;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +41,14 @@ public class MainActivityFragment extends Fragment {
 
         if (isOnline()) {  // if network is online, get movie list
             updateMovieList();
+        }
+        else {
+            Context context = this.getContext();
+            CharSequence text = "Cannot connect to internet. Please turn off airplane mode or turn on wifi. ";
+            int duration = Toast.LENGTH_LONG;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
         }
 
     }
@@ -168,12 +177,11 @@ public class MainActivityFragment extends Fragment {
             if (result != null) {
                 movieAdapter.clear();
                 // NOTE: for Honeycomb and above, can use addAll method instead of for loop
-                // *** this updates GridView adapter with new forecast data
-                for(Movie movie : result) {
-                    // Log.v(LOG_TAG, "onPostExecute: add movie " + movie.title);
-                    // Log.v(LOG_TAG, "onPostExecute: add movie " + movie.poster_path);
-                    movieAdapter.add(movie);
-                }
+                // *** this updates GridView adapter with new movie data
+                // for(Movie movie : result) {
+                //    movieAdapter.add(movie);
+                //}
+                movieAdapter.addAll(result);
             }
         }
 
