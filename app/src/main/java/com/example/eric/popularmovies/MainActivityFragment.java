@@ -53,14 +53,6 @@ public class MainActivityFragment extends Fragment {
 
         movieAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
 
-        // is back slash in post_path messing with data?
-        // sample movie for testing
-        // (int vId, String vTitle, String vPoster_path, Double vVote_average, Double vPopularity)
-        Movie m = new Movie(333484,"The Magnificent Seven", "/z6BP8yLwck8mN9dtdYKkZ4XGa3D.jpg", 4.59, 32.373914);
-        movieAdapter.add(m);
-
-        // Log.v(LOG_TAG, "onCreateView: movieAdapter.getCount " + movieAdapter.getCount());
-
         // Get a reference to the ListView, and attach this adapter to it.
         GridView gridView = (GridView) rootView.findViewById(R.id.movies_grid);
         gridView.setAdapter(movieAdapter);
@@ -105,7 +97,6 @@ public class MainActivityFragment extends Fragment {
 
             // Will contain the raw JSON response as a string.
             String moviesJsonStr = null;
-            // Log.v(LOG_TAG, "doInBackground ");
 
             try {
 
@@ -183,13 +174,6 @@ public class MainActivityFragment extends Fragment {
                     // Log.v(LOG_TAG, "onPostExecute: add movie " + movie.poster_path);
                     movieAdapter.add(movie);
                 }
-                // movieAdapter.notifyDataSetChanged();
-
-
-                //http://stackoverflow.com/questions/16338281/custom-adapter-getview-method-is-not-called
-                // to verify elements, use
-                // Log.v(LOG_TAG, "onPostExecute: movieAdapter.GetCount() " + movieAdapter.getCount());
-                // returns 20
             }
         }
 
@@ -238,7 +222,7 @@ public class MainActivityFragment extends Fragment {
                 JSONObject movieJson = movieArray.getJSONObject(i);
                 Movie movie = new Movie(movieJson.getInt(MDB_ID),
                                         movieJson.getString(MDB_TITLE),
-                                        movieJson.getString(MDB_POSTER_PATH),
+                                        movieJson.getString(MDB_POSTER_PATH).replaceAll("/", ""), // remove all slashes
                                         movieJson.getDouble(MDB_VOTE_AVG),
                                         movieJson.getDouble(MDB_POPULARITY));
 

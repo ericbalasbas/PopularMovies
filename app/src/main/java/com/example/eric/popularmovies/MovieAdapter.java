@@ -49,8 +49,6 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
         Movie movie = getItem(position);
         Log.v(LOG_TAG, "getView: position " + position);
 
-        // **************** not called, why???? **************
-
         // Adapters recycle views to AdapterViews.
         // If this is a new View object we're getting, then inflate the layout.
         // If not, this view already has the layout inflated from a previous call to getView,
@@ -66,13 +64,10 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
             Uri uri = buildPosterUri(movie.poster_path);
             Picasso.with(this.getContext())
                    .load(uri)
-                    // .placeholder(R.drawable.placeholder)
-                    // .error(R.drawable.error)
                    .into(imageView);
+            // .placeholder(R.drawable.placeholder)
+            // .error(R.drawable.error)
 
-            TextView movieView = (TextView) convertView.findViewById(R.id.movie_text);
-            movieView.setText(movie.title);
-            Log.v(LOG_TAG, "getView: movie title:  " + movie.title);
         }
 
         return convertView;
