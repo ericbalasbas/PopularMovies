@@ -61,12 +61,20 @@ public class MovieDetailFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
+        Context context = this.getContext();
+        // http://stackoverflow.com/questions/6495898/findviewbyid-in-fragment
+        // cannot use getView in onCreate(), onCreateView() methods of the fragment
+
+        View rootView = getView().findViewById(R.id.activity_movie_detail);
+        if (rootView == null) {
+            Log.v(LOG_TAG, "onStart: rootView is null ");
+        }
+
         // TODO: refactor to MovieDb class
         if (isOnline()) {  // if network is online, get movie detail
-            updateMovieDetail();
+            updateMovieDetail(context, rootView);
         }
         else {
-            Context context = this.getContext();
             CharSequence text = "Cannot connect to internet. Please turn off airplane mode or turn on wifi. ";
             int duration = Toast.LENGTH_LONG;
 
@@ -99,45 +107,6 @@ public class MovieDetailFragment extends Fragment {
         return rootView;
     }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        // what to do if view is null ???
-
-        if (movie == null) {
-            Log.v(LOG_TAG, "onViewCreated: movie is NULL  ");
-            return;
-        }
-
-        if (view == null) {
-            Log.v(LOG_TAG, "onViewCreated: view is NULL  ");
-            return;
-        }
-
-        Log.v(LOG_TAG, "onViewCreated: movie title:  " + movie.title);
-
-        ImageView imageView = (ImageView) view.findViewById(R.id.movie_poster);
-
-        Uri uri = buildPosterUri(movie.poster_path);
-        Picasso.with(getContext())
-                .load(uri)
-                .into(imageView);
-        // .placeholder(R.drawable.placeholder)
-        // .error(R.drawable.error)
-
-        // TODO: format date for locale
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-        TextView titleView = (TextView) view.findViewById(R.id.title);
-        titleView.setText(movie.title);
-        TextView releaseDateView = (TextView) view.findViewById(R.id.release_date);
-        releaseDateView.setText(format.format(movie.release_date));
-        TextView voteAverageView = (TextView) view.findViewById(R.id.vote_average);
-        // TODO: format vote_average for locale
-        voteAverageView.setText(movie.vote_average.toString());
-        TextView overviewView = (TextView) view.findViewById(R.id.overview);
-        overviewView.setText(movie.overview);
-
-    }
 
 
     @Override
@@ -189,8 +158,9 @@ public class MovieDetailFragment extends Fragment {
                 cm.getActiveNetworkInfo().isConnectedOrConnecting();
     }
 
-    private void updateMovieDetail() {
-        FetchMovieTask movieTask = new FetchMovieTask();
+    private void updateMovieDetail(Context context, View rootView) {
+
+        FetchMovieTask movieTask = new FetchMovieTask(context, rootView);
         // SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         // String location = prefs.getString(getString(R.string.pref_location_key),
         //        getString(R.string.pref_location_default));
@@ -228,6 +198,13 @@ public class MovieDetailFragment extends Fragment {
 
     public class FetchMovieTask extends AsyncTask<String, Void, Movie> {
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
+        private Context context;
+        private View rootView;
+
+        public FetchMovieTask(Context context, View rootView) {
+            this.context = context;
+            this.rootView = rootView;
+        }
 
         @Override
         protected Movie doInBackground(String... params) {
@@ -314,12 +291,6 @@ public class MovieDetailFragment extends Fragment {
                 movie = result;
                 Log.v(LOG_TAG, "onPostExecute: movie title:  " + movie.title);
 
-                // TODO: force view refresh here???
-                View rootView = ((Activity) getContext()).findViewById(R.id.fragment_movie_detail);
-
-
-                // View rootView = getActivity().findViewById(R.id.fragment_movie_detail);
-
                 if (rootView == null) {
                     Log.v(LOG_TAG, "onPostExecute: rootView is null");
 
@@ -327,24 +298,11 @@ public class MovieDetailFragment extends Fragment {
                                 R.layout.fragment_movie_detail, null, false);
 
                 }
-                // else {
-                //    rootView.invalidate();
-                // }
-
-                // rootView.invalidate(); // does not update movie details even after inflating rootView
-
-
-                // log shows correct title
-                // Log.v(LOG_TAG, "onPostExecute: movie title:  " + movieDetailAdapter.getItem(0).title);
-
-                // View rootView = getActivity().findViewById(R.id.fragment_movie_detail);
-                // View rootView = ((Activity)getContext()).getWindow().getDecorView().findViewById(R.id.fragment_movie_detail);
-                // View rootView = ((Activity) getContext()).findViewById(R.id.fragment_movie_detail);
 
                 ImageView imageView = (ImageView) rootView.findViewById(R.id.movie_poster);
 
                 Uri uri = buildPosterUri(movie.poster_path);
-                Picasso.with(getContext())
+                Picasso.with(context)
                         .load(uri)
                         .into(imageView);
                 // .placeholder(R.drawable.placeholder)
@@ -426,8 +384,5 @@ public class MovieDetailFragment extends Fragment {
 
             return results;
         }
-
-
-
     }
 }
