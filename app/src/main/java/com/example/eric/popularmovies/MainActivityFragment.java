@@ -1,6 +1,7 @@
 package com.example.eric.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.net.ConnectivityManager;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
@@ -23,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +59,7 @@ public class MainActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+        final String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
@@ -66,19 +69,34 @@ public class MainActivityFragment extends Fragment {
         GridView gridView = (GridView) rootView.findViewById(R.id.movies_grid);
         gridView.setAdapter(movieAdapter);
 
+        // TODO: Refactor into MainActivity
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v,
+                                    int position, long id) {
+                // TODO: Set default value for null MovieId
+                String MovieId = Integer.toString(movieAdapter.getItem(position).id);
+
+                Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, MovieId);
+                Log.v(LOG_TAG, "onItemClick: movieId " + MovieId);
+                startActivity(intent);
+            }
+        });
+
         // Inflate the layout for this fragment
         return rootView;
     }
 
     private void updateMovieList() {
-        FetchMoviesTask movieTask = new FetchMoviesTask();
+        FetchMovieListTask movieTask = new FetchMovieListTask();
         // SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         // String location = prefs.getString(getString(R.string.pref_location_key),
         //        getString(R.string.pref_location_default));
         movieTask.execute();
     }
 
-
+    // TODO: refactor into MovieDb class
     // from http://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-times-out
     // Only tests if network connection works, not if internet connection works.
 
@@ -93,8 +111,8 @@ public class MainActivityFragment extends Fragment {
                 cm.getActiveNetworkInfo().isConnectedOrConnecting();
     }
 
-    public class FetchMoviesTask extends AsyncTask<String, Void, List<Movie>> {
-        private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
+    public class FetchMovieListTask extends AsyncTask<String, Void, List<Movie>> {
+        private final String LOG_TAG = FetchMovieListTask.class.getSimpleName();
 
         @Override
         protected List<Movie> doInBackground(String... params) {
@@ -108,12 +126,11 @@ public class MainActivityFragment extends Fragment {
             String moviesJsonStr = null;
 
             try {
-
                 // catch IOException already catches MalformedURLException, no need to test for
                 // null url strings here
                 URL url = new URL(buildMoviesUri().toString());
-                Log.v(LOG_TAG, "doInBackground: url: " + url);
-                // Create the request to OpenWeatherMap, and open the connection
+
+                // Create the request to TheMovieDB, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
@@ -143,8 +160,6 @@ public class MainActivityFragment extends Fragment {
                     return null;
                 }
                 moviesJsonStr = buffer.toString();
-                // Log.v(LOG_TAG, "doInBackground: moviesJsonStr: " + moviesJsonStr);
-
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the movie data, there's no point in attempting
@@ -185,6 +200,7 @@ public class MainActivityFragment extends Fragment {
             }
         }
 
+        // TODO: refactor into MovieDb class
         private Uri buildMoviesUri() {
 
             // Construct Uri for query to TheMovieDB.org API
@@ -208,31 +224,37 @@ public class MainActivityFragment extends Fragment {
             }
         }
 
-        // add movie data to MovieAdapter
+        // TODO: refactor into MovieDb class
+        // add movie data to MovieListAdapter
         private List<Movie> getMovieDataFromJson(String moviesJsonStr)
                 throws JSONException {
             // The Movie DB popular movies query returns a page number, and results array
 
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             // These are the names of the JSON objects that need to be extracted.
             final String MDB_RESULTS = "results";
             final String MDB_ID = "id";
             final String MDB_TITLE = "title";
             final String MDB_POSTER_PATH = "poster_path";
-            final String MDB_VOTE_AVG = "vote_average";
-            final String MDB_POPULARITY = "popularity";
+            // final String MDB_OVERVIEW = "overview";
+            // final String MDB_RELEASE_DATE = "release_date"; // string in format "2016-09-14"
+            // final String MDB_VOTE_AVG = "vote_average";
+            // final String MDB_POPULARITY = "popularity";
 
             JSONObject movieQueryResults = new JSONObject(moviesJsonStr);
             JSONArray movieArray = movieQueryResults.getJSONArray(MDB_RESULTS);
 
             List<Movie> results = new ArrayList<>();
+            // Date release_date;
 
             for(int i = 0; i < movieArray.length(); i++) {
                 JSONObject movieJson = movieArray.getJSONObject(i);
+
+                // release_date = format.parse(movieJson.getString(MDB_RELEASE_DATE));
                 Movie movie = new Movie(movieJson.getInt(MDB_ID),
-                                        movieJson.getString(MDB_TITLE),
-                                        movieJson.getString(MDB_POSTER_PATH).replaceAll("/", ""), // remove all slashes
-                                        movieJson.getDouble(MDB_VOTE_AVG),
-                                        movieJson.getDouble(MDB_POPULARITY));
+                        movieJson.getString(MDB_TITLE),
+                        movieJson.getString(MDB_POSTER_PATH).replaceAll("/", ""));
+                // remove all slashes
 
                 results.add(movie);
             }

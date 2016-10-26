@@ -5,20 +5,13 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+// TODO: implement MainActivityFragment.OnItemSelectedListener
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // ??????
-
-        // if (savedInstanceState == null) {
-        //    getSupportFragmentManager().beginTransaction()
-        //            .add(R.id.movies_grid, new MainActivityFragment())
-        //            .commit();
-        // }
-
     }
 
     @Override
