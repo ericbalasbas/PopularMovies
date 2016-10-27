@@ -3,36 +3,70 @@
     android:id="@+id/fragment_movie_detail"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    style="@style/AppTheme"
     tools:context="com.example.eric.popularmovies.MovieDetailFragment">
 
     <ImageView
         android:id="@+id/movie_poster"
         android:layout_alignParentTop="true"
-        android:layout_width="wrap_content"
+        android:maxWidth="200dp"
+        android:maxHeight="300dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
         android:contentDescription="@string/movie_poster"/>
     <TextView
         android:id="@+id/title"
         android:layout_below="@+id/movie_poster"
+        android:textSize="20sp"
+        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/hello_blank_fragment" />
+    <TextView
+        android:id="@+id/release_date_header"
+        android:layout_below="@+id/title"
+        android:layout_alignLeft="@+id/title"
+        android:layout_alignStart="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="Release Date:    " />
     <TextView
         android:id="@+id/release_date"
         android:layout_below="@+id/title"
+        android:layout_toEndOf="@+id/release_date_header"
+        android:layout_toRightOf="@+id/release_date_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/hello_blank_fragment" />
+    <TextView
+        android:id="@+id/vote_average_header"
+        android:layout_below="@+id/release_date"
+        android:layout_alignLeft="@+id/title"
+        android:layout_alignStart="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="Average Vote:    " />
     <TextView
         android:id="@+id/vote_average"
         android:layout_below="@+id/release_date"
+        android:layout_toEndOf="@+id/vote_average_header"
+        android:layout_toRightOf="@+id/vote_average_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/hello_blank_fragment" />
-
+    <TextView
+        android:id="@+id/overview_header"
+        android:layout_below="@+id/vote_average"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="Overview"/>
     <TextView
         android:id="@+id/overview"
-        android:layout_below="@+id/vote_average"
+        android:layout_below="@+id/overview_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/hello_blank_fragment"/>
