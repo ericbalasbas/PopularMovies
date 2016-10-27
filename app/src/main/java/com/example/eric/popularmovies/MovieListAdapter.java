@@ -12,9 +12,10 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-// TODO: refactor to MovieListAdapter
-public class MovieAdapter extends ArrayAdapter<Movie> {
-    private static final String LOG_TAG = MovieAdapter.class.getSimpleName();
+
+
+public class MovieListAdapter extends ArrayAdapter<Movie> {
+    private static final String LOG_TAG = MovieListAdapter.class.getSimpleName();
 
     /**
      * This is our own custom constructor (it doesn't mirror a superclass constructor).
@@ -24,7 +25,7 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
      * @param context        The current context. Used to inflate the layout file.
      * @param movies A List of Movie objects to display in a list
      */
-    public MovieAdapter(Activity context, List<Movie> movies) {
+    public MovieListAdapter(Activity context, List<Movie> movies) {
         // Here, we initialize the ArrayAdapter's internal storage for the context and the list.
         // the second argument is used when the ArrayAdapter is populating a single TextView.
         // Because this is a custom adapter for two TextViews and an ImageView, the adapter is not
@@ -60,44 +61,15 @@ public class MovieAdapter extends ArrayAdapter<Movie> {
         ImageView imageView = (ImageView) convertView.findViewById(R.id.movie_image);
 
         if (movie != null) {
-            Uri uri = buildPosterUri(movie.poster_path);
+            Uri uri = MovieDb.buildPosterUri(movie.poster_path);
             Picasso.with(this.getContext())
                    .load(uri)
                    .into(imageView);
             // .placeholder(R.drawable.placeholder)
             // .error(R.drawable.error)
-
         }
 
         return convertView;
     }
 
-    /***
-     *  TODO: refactor to MovieDb class, (static method?)
-     * @param poster_path - from Movie DB API
-     * @return uri for movie poster for use in Picasso.load(android.net.Uri uri)
-     *
-     * to construct url for movie poster
-     * base url: http://image.tmdb.org/t/p/
-     * size: "w92", "w154", "w185" (recommended), "w342", "w500", "w780", or "original"
-     * poster_path
-     * for example: http://image.tmdb.org/t/p/w185/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg
-     *
-     */
-
-    private Uri buildPosterUri(String poster_path) {
-
-        final String MOVIE_BASE_URL = "http://image.tmdb.org/t/p/";
-        final String SIZE_PARAM = "w185";
-
-        try {
-            return Uri.parse(MOVIE_BASE_URL).buildUpon()
-                    .appendPath(SIZE_PARAM)
-                    .appendPath(poster_path)
-                    .build();
-        } catch (UnsupportedOperationException e) {
-            Log.e(LOG_TAG, "Error ", e);
-            return null;
-        }
-    }
 }

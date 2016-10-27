@@ -1,9 +1,7 @@
 package com.example.eric.popularmovies;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,8 +27,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+
 
 
 /**
@@ -49,7 +47,6 @@ public class MovieDetailFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private String MovieId;
-    public MovieDetailAdapter movieDetailAdapter;
     public Movie movie;
 
     public MovieDetailFragment() {
@@ -70,8 +67,7 @@ public class MovieDetailFragment extends Fragment {
             Log.v(LOG_TAG, "onStart: rootView is null ");
         }
 
-        // TODO: refactor to MovieDb class
-        if (isOnline()) {  // if network is online, get movie detail
+        if (MovieDb.isOnline(getActivity())) {  // if network is online, get movie detail
             updateMovieDetail(context, rootView);
         }
         else {
@@ -93,9 +89,6 @@ public class MovieDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
-
-        movieDetailAdapter = new MovieDetailAdapter(getActivity(), new ArrayList<Movie>());
-        // NOTE: need to use AdapterView.setAdapter here to use an Adapter
 
         // The detail Activity called via intent.  Inspect the intent for forecast data.
         Intent intent = getActivity().getIntent();
@@ -143,20 +136,6 @@ public class MovieDetailFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    // TODO: refactor to MovieDb class
-    // from http://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-times-out
-    // Only tests if network connection works, not if internet connection works.
-
-    // To test internet connection, can ping a site (not recommended, some networks disable ping)
-    // or create a test connection and test if that works:
-    // http://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-times-out/39766506#39766506
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) this.getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        return cm.getActiveNetworkInfo() != null &&
-                cm.getActiveNetworkInfo().isConnectedOrConnecting();
-    }
 
     private void updateMovieDetail(Context context, View rootView) {
 
@@ -167,34 +146,6 @@ public class MovieDetailFragment extends Fragment {
         movieTask.execute();
     }
 
-    /***
-     *
-     * @param poster_path - from Movie DB API
-     * @return uri for movie poster for use in Picasso.load(android.net.Uri uri)
-     *
-     * to construct url for movie poster
-     * base url: http://image.tmdb.org/t/p/
-     * size: "w92", "w154", "w185" (recommended), "w342", "w500", "w780", or "original"
-     * poster_path
-     * for example: http://image.tmdb.org/t/p/w185/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg
-     *
-     */
-
-    private Uri buildPosterUri(String poster_path) {
-
-        final String MOVIE_BASE_URL = "http://image.tmdb.org/t/p/";
-        final String SIZE_PARAM = "w185";
-
-        try {
-            return Uri.parse(MOVIE_BASE_URL).buildUpon()
-                    .appendPath(SIZE_PARAM)
-                    .appendPath(poster_path)
-                    .build();
-        } catch (UnsupportedOperationException e) {
-            Log.e(LOG_TAG, "Error ", e);
-            return null;
-        }
-    }
 
     public class FetchMovieTask extends AsyncTask<String, Void, Movie> {
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
@@ -208,75 +159,25 @@ public class MovieDetailFragment extends Fragment {
 
         @Override
         protected Movie doInBackground(String... params) {
-
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
-            // Will contain the raw JSON response as a string.
+            // Contains the raw JSON response as a string.
             String moviesJsonStr = null;
 
             try {
-
-                // TODO: refactor to MovieDb class
                 // catch IOException already catches MalformedURLException, no need to test for
                 // null url strings here
-                URL url = new URL(buildMovieDetailUri(MovieId).toString());
-                Log.v(LOG_TAG, "doInBackground: url " + url.toString()); // url looks good here
+                URL url = new URL(MovieDb.buildMovieDetailUri(MovieId).toString());
 
-                // Create the request to TheMovieDB, and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-
-                if (inputStream == null) {
-                    // Nothing to do.
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                // TODO: change to StringBuilder
-                // https://developer.android.com/reference/java/lang/StringBuilder.html
-
-                StringBuffer buffer = new StringBuffer();
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-                moviesJsonStr = buffer.toString();
+                moviesJsonStr = MovieDb.getJson(url);
                 Log.v(LOG_TAG, "doInBackground: moviesJsonStr " + moviesJsonStr); // json string looks good here
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the movie data, there's no point in attempting
                 // to parse it.
                 return null;
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
-                    }
-                }
             }
 
             try {
-                return getMovieDataFromJson(moviesJsonStr);
+                return MovieDb.getMovieDetailDataFromJson(moviesJsonStr);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
@@ -301,7 +202,7 @@ public class MovieDetailFragment extends Fragment {
 
                 ImageView imageView = (ImageView) rootView.findViewById(R.id.movie_poster);
 
-                Uri uri = buildPosterUri(movie.poster_path);
+                Uri uri = MovieDb.buildPosterUri(movie.poster_path);
                 Picasso.with(context)
                         .load(uri)
                         .into(imageView);
@@ -324,65 +225,5 @@ public class MovieDetailFragment extends Fragment {
             }
         }
 
-        // TODO: refactor into MovieDb class
-        private Uri buildMovieDetailUri(String MovieId) {
-
-            // Construct Uri for query to TheMovieDB.org API
-            // https://www.themoviedb.org/documentation/api
-
-            final String language = "en-US";
-
-            // https://api.themoviedb.org/3/movie/{movie_id}?api_key=<<api_key>>&language=en-US
-            final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/";
-            final String LANGUAGE_PARAM = "language";
-            final String API_KEY_PARAM = "api_key";
-
-            try {
-                return Uri.parse(MOVIE_BASE_URL).buildUpon()
-                        .appendPath(MovieId)
-                        .appendQueryParameter(LANGUAGE_PARAM, language)
-                        .appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
-                        .build();
-            } catch (UnsupportedOperationException e) {
-                Log.e(LOG_TAG, "Error ", e);
-                return null;
-            }
-        }
-
-        // add movie data to MovieDetailAdapter
-        private Movie getMovieDataFromJson(String moviesJsonStr)
-                throws JSONException {
-
-
-            // These are the names of the JSON objects that need to be extracted.
-            final String MDB_ID = "id";
-            final String MDB_TITLE = "title";
-            final String MDB_POSTER_PATH = "poster_path";
-            final String MDB_OVERVIEW = "overview";
-            final String MDB_RELEASE_DATE = "release_date"; // string in format "2016-09-14"
-            final String MDB_VOTE_AVG = "vote_average";
-            final String MDB_POPULARITY = "popularity";
-
-            JSONObject movieJson = new JSONObject(moviesJsonStr);
-
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            Date release_date = new Date();
-
-            try {
-                release_date = format.parse(movieJson.getString(MDB_RELEASE_DATE));
-            } catch (ParseException e) {
-                Log.e(LOG_TAG, "Error ", e);
-            }
-
-            Movie results = new Movie(movieJson.getInt(MDB_ID),
-                                    movieJson.getString(MDB_TITLE),
-                                    movieJson.getString(MDB_POSTER_PATH).replaceAll("/", ""), // remove all slashes
-                                    movieJson.getString(MDB_OVERVIEW),
-                                    release_date,
-                                    movieJson.getDouble(MDB_VOTE_AVG),
-                                    movieJson.getDouble(MDB_POPULARITY));
-
-            return results;
-        }
     }
 }
