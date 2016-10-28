@@ -2,22 +2,17 @@ package com.example.eric.popularmovies;
 
 import java.util.Date;
 
-public class Movie {
+class Movie {
     int id;
     String poster_path, title, overview;
     Double vote_average, popularity;
     Date release_date;
 
-    public Movie()
-    {
-        this(0, "", "", "", new Date(), 0.0, 0.0);
-    }
-
-    public Movie(int vId, String vTitle, String vPoster_path)
+    Movie(int vId, String vTitle, String vPoster_path)
     {
         this(vId, vTitle, vPoster_path, "", new Date(), 0.0, 0.0);
     }
-    public Movie(int vId, String vTitle, String vPoster_path, String vOverview, Date vRelease_date,
+    Movie(int vId, String vTitle, String vPoster_path, String vOverview, Date vRelease_date,
                  Double vVote_average, Double vPopularity)
     {
         this.id = vId;

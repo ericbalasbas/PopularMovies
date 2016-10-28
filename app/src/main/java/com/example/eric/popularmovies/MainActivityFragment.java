@@ -2,9 +2,10 @@ package com.example.eric.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,17 +15,10 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,7 +67,6 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                // TODO: Set default value for null MovieId
                 String MovieId = Integer.toString(movieListAdapter.getItem(position).id);
 
                 Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
@@ -89,9 +82,6 @@ public class MainActivityFragment extends Fragment {
 
     private void updateMovieList() {
         FetchMovieListTask movieTask = new FetchMovieListTask();
-        // SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        // String location = prefs.getString(getString(R.string.pref_location_key),
-        //        getString(R.string.pref_location_default));
         movieTask.execute();
     }
 
@@ -101,20 +91,23 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected List<Movie> doInBackground(String... params) {
-
-            // These two need to be declared outside the try/catch
-            // so that they can be closed in the finally block.
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-
             // Will contain the raw JSON response as a string.
-            String moviesJsonStr = null;
+            String moviesJsonStr;
 
             try {
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+                // NOTE: values in strings.xml for pref_sort_order_key must match the Movie DB API
+                String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key),
+                        getString(R.string.pref_most_popular));
+                Log.v(LOG_TAG, "doInBackground: sortOrder: " + sortOrder);
+                // sortOrder = "popular";
+
                 // catch IOException already catches MalformedURLException, no need to test for
                 // null url strings here
 
-                URL url = new URL(MovieDb.buildMovieListUri().toString());
+                URL url = new URL(MovieDb.buildMovieListUri(sortOrder).toString());
+                Log.v(LOG_TAG, "doInBackground: url: " + url.toString());
 
                 moviesJsonStr = MovieDb.getJson(url);
             } catch (IOException e) {

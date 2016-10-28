@@ -14,7 +14,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 
-public class MovieListAdapter extends ArrayAdapter<Movie> {
+class MovieListAdapter extends ArrayAdapter<Movie> {
     private static final String LOG_TAG = MovieListAdapter.class.getSimpleName();
 
     /**
@@ -25,7 +25,7 @@ public class MovieListAdapter extends ArrayAdapter<Movie> {
      * @param context        The current context. Used to inflate the layout file.
      * @param movies A List of Movie objects to display in a list
      */
-    public MovieListAdapter(Activity context, List<Movie> movies) {
+    MovieListAdapter(Activity context, List<Movie> movies) {
         // Here, we initialize the ArrayAdapter's internal storage for the context and the list.
         // the second argument is used when the ArrayAdapter is populating a single TextView.
         // Because this is a custom adapter for two TextViews and an ImageView, the adapter is not

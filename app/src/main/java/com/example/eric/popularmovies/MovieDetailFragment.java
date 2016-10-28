@@ -17,17 +17,10 @@ import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 
 
@@ -147,12 +140,12 @@ public class MovieDetailFragment extends Fragment {
     }
 
 
-    public class FetchMovieTask extends AsyncTask<String, Void, Movie> {
+    class FetchMovieTask extends AsyncTask<String, Void, Movie> {
         private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
         private Context context;
         private View rootView;
 
-        public FetchMovieTask(Context context, View rootView) {
+        FetchMovieTask(Context context, View rootView) {
             this.context = context;
             this.rootView = rootView;
         }

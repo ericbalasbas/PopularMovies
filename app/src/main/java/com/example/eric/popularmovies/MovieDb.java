@@ -23,10 +23,10 @@ import java.util.Date;
 import java.util.List;
 
 
-public class MovieDb {
+class MovieDb {
     private static final String LOG_TAG = MovieDb.class.getSimpleName();
 
-    public MovieDb() {  }
+    MovieDb() {  }
 
 
     /*
@@ -40,7 +40,7 @@ public class MovieDb {
      * or create a test connection and test if that works:
      * http://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-times-out/39766506#39766506
      */
-    public static boolean isOnline(Activity activity) {
+    static boolean isOnline(Activity activity) {
         ConnectivityManager cm =
                 (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -48,7 +48,7 @@ public class MovieDb {
                 cm.getActiveNetworkInfo().isConnectedOrConnecting();
     }
 
-    public static String getJson(URL queryUrl) {
+    static String getJson(URL queryUrl) {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
@@ -115,7 +115,7 @@ public class MovieDb {
      *
      */
 
-    public static Uri buildPosterUri(String poster_path) {
+    static Uri buildPosterUri(String poster_path) {
 
         final String MOVIE_BASE_URL = "http://image.tmdb.org/t/p/";
         final String SIZE_PARAM = "w185";
@@ -132,20 +132,24 @@ public class MovieDb {
     }
 
 
-    public static Uri buildMovieListUri() {
+    static Uri buildMovieListUri(String vSortOrder) {
 
         // Construct Uri for query to TheMovieDB.org API
         // https://www.themoviedb.org/documentation/api
 
-        final String language = "en-US";
-
         // example: https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US
-        final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/popular?";
+        // final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/popular?";
+        // final String POPULAR_PATH = "popular";
+        // final String TOP_RATED_PATH = "top_rated";
+        // final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/top_rated?";
+        final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie";
         final String LANGUAGE_PARAM = "language";
         final String API_KEY_PARAM = "api_key";
+        final String language = "en-US";
 
         try {
             return Uri.parse(MOVIE_BASE_URL).buildUpon()
+                    .appendPath(vSortOrder)
                     .appendQueryParameter(LANGUAGE_PARAM, language)
                     .appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
                     .build();
@@ -156,7 +160,7 @@ public class MovieDb {
     }
 
 
-    public static Uri buildMovieDetailUri(String MovieId) {
+    static Uri buildMovieDetailUri(String MovieId) {
 
         // Construct Uri for query to TheMovieDB.org API
         // https://www.themoviedb.org/documentation/api
@@ -182,7 +186,7 @@ public class MovieDb {
 
 
 
-    public static List<Movie> getMovieListDataFromJson(String moviesJsonStr)
+    static List<Movie> getMovieListDataFromJson(String moviesJsonStr)
             throws JSONException {
         // The Movie DB popular movies query returns a page number, and results array
 
@@ -212,7 +216,7 @@ public class MovieDb {
         return results;
     }
 
-    public static Movie getMovieDetailDataFromJson(String moviesJsonStr)
+    static Movie getMovieDetailDataFromJson(String moviesJsonStr)
             throws JSONException {
 
         // These are the names of the JSON objects that need to be extracted.

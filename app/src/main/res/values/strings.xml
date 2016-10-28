@@ -3,4 +3,32 @@
     <string name="action_settings">Settings</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="movie_poster">Movie Poster</string>
+    <string name="release_date">Release Date:&#160;&#160;&#160;&#160;</string>
+    <string name="vote_average">User Rating:&#160;&#160;&#160;&#160;&#160;&#160;&#160;</string>
+    <string name="overview">Overview</string>
+
+    <!-- Label for the Sort Order preference [CHAR LIMIT=30] -->
+    <string name="pref_sort_order_label">Sort Order</string>
+
+    <!-- Label for Most Popular in Sort Order preference [CHAR LIMIT=25] -->
+    <string name="pref_label_most_popular">Most Popular</string>
+
+    <!-- Label for Highest Rated in Sort Order preference [CHAR LIMIT=25] -->
+    <string name="pref_label_top_rated">Top Rated</string>
+
+    <!-- Key name for Sort Order preference in SharedPreferences [CHAR LIMIT=NONE] -->
+    <string name="pref_sort_order_key" translatable="false">sort_order</string>
+
+    <!-- Value in SharedPreferences for Most Popular option [CHAR LIMIT=NONE]
+          MUST match the Movie DB API https://developers.themoviedb.org/3/movies/get-popular-movies
+          -->
+    <string name="pref_most_popular" translatable="false">popular</string>
+
+    <!-- Value in SharedPreferences for Highest Rated option [CHAR LIMIT=NONE]
+          MUST match the Movie DB API https://developers.themoviedb.org/3/movies/get-top-rated-movies
+          -->
+    <string name="pref_top_rated" translatable="false">top_rated</string>
+
+    <string name="title_activity_settings">Settings</string>
+
 </resources>
