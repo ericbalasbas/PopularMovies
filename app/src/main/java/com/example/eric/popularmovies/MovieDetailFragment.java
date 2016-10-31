@@ -24,6 +24,8 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
 
@@ -35,12 +37,10 @@ import java.text.SimpleDateFormat;
  * to handle interaction events.
  *
  * Use intent to send movie ID. Query movie DB again to get details.
- * Even though we have all of the data from the initial query, in Part 2 we will have to make
+ * Even though we have all of the data from the initial query, in Project Part 2 we will have to make
  * another query anyway.
  */
 public class MovieDetailFragment extends Fragment {
-
-    private static final String LOG_TAG = MovieDetailFragment.class.getSimpleName();
 
     private OnFragmentInteractionListener mListener;
     private String MovieId;
@@ -60,9 +60,6 @@ public class MovieDetailFragment extends Fragment {
         // cannot use getView in onCreate(), onCreateView() methods of the fragment
 
         View rootView = getView().findViewById(R.id.activity_movie_detail);
-        if (rootView == null) {
-            Log.v(LOG_TAG, "onStart: rootView is null ");
-        }
 
         if (MovieDb.isOnline(getActivity())) {  // if network is online, get movie detail
             updateMovieDetail(context, rootView);
@@ -91,7 +88,6 @@ public class MovieDetailFragment extends Fragment {
         Intent intent = getActivity().getIntent();
         if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
             MovieId = intent.getStringExtra(Intent.EXTRA_TEXT);
-            Log.v(LOG_TAG, "onCreateView: MovieId " + MovieId); // MovieId shows up correctly
         }
 
         return rootView;
@@ -148,10 +144,15 @@ public class MovieDetailFragment extends Fragment {
             this.rootView = rootView;
         }
 
+        /**
+         * Get movie details from the Movie DB, return Movie object.
+         * @param params - none used
+         * @return Movie object
+         */
         @Override
         protected Movie doInBackground(String... params) {
             // Contains the raw JSON response as a string.
-            String moviesJsonStr = null;
+            String moviesJsonStr;
 
             try {
                 // catch IOException already catches MalformedURLException, no need to test for
@@ -159,7 +160,6 @@ public class MovieDetailFragment extends Fragment {
                 URL url = new URL(MovieDb.buildMovieDetailUri(MovieId).toString());
 
                 moviesJsonStr = MovieDb.getJson(url);
-                Log.v(LOG_TAG, "doInBackground: moviesJsonStr " + moviesJsonStr); // json string looks good here
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the movie data, there's no point in attempting
@@ -176,19 +176,19 @@ public class MovieDetailFragment extends Fragment {
             return null;
         }
 
+        /**
+         * Set movie object to be result, and update all view fields with new movie details.
+         * @param result - movie object
+         */
         @Override
         protected void onPostExecute(Movie result) {
             if (result != null) {
 
                 movie = result;
-                Log.v(LOG_TAG, "onPostExecute: movie title:  " + movie.title);
 
                 if (rootView == null) {
-                    Log.v(LOG_TAG, "onPostExecute: rootView is null");
-
                     rootView = LayoutInflater.from(getContext()).inflate(
                                 R.layout.fragment_movie_detail, null, false);
-
                 }
 
                 ImageView imageView = (ImageView) rootView.findViewById(R.id.movie_poster);
@@ -198,16 +198,15 @@ public class MovieDetailFragment extends Fragment {
                         .load(uri)
                         .into(imageView);
 
-                // TODO: format date for locale
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM);
+                NumberFormat numberFormat = NumberFormat.getNumberInstance();
 
                 TextView titleView = (TextView) rootView.findViewById(R.id.title);
                 titleView.setText(movie.title);
                 TextView releaseDateView = (TextView) rootView.findViewById(R.id.release_date);
                 releaseDateView.setText(format.format(movie.release_date));
                 TextView voteAverageView = (TextView) rootView.findViewById(R.id.vote_average);
-                // TODO: format vote_average for locale
-                voteAverageView.setText(movie.vote_average.toString());
+                voteAverageView.setText(numberFormat.format(movie.vote_average));
                 TextView overviewView = (TextView) rootView.findViewById(R.id.overview);
                 overviewView.setText(movie.overview);
 

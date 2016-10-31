@@ -14,7 +14,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
     /**
      * Set Activity layout.
-     * @param savedInstanceState
+     * @param savedInstanceState - app settings
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +24,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
     /**
      * Inflate the standard options menu.
-     * @param menu
+     * @param menu - standard options menu
      * @return boolean
      */
     @Override

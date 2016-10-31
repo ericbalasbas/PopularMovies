@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Load preferences and set activity layout.
-     * @param savedInstanceState
+     * @param savedInstanceState - app settings
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Initialize standard options menu.
-     * @param menu
+     * @param menu - standard options menu
      * @return boolean
      */
     @Override
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Start Settings Activity when options menu is selected.
-     * @param item
+     * @param item - action bar item
      * @return boolean
      */
     @Override

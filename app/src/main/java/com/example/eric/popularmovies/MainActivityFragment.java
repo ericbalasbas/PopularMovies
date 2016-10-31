@@ -59,15 +59,15 @@ public class MainActivityFragment extends Fragment {
 
     /**
      * Load GridView with list of Movie objects from movieListAdapter.
-     * @param inflater
-     * @param container
-     * @param savedInstanceState
+     * @param inflater - default
+     * @param container - default
+     * @param savedInstanceState - app settings
      * @return View
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
@@ -84,12 +84,13 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                String MovieId = Integer.toString(movieListAdapter.getItem(position).id);
+                if (movieListAdapter.getItem(position) != null) {
+                    String MovieId = Integer.toString(movieListAdapter.getItem(position).id);
 
-                Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, MovieId);
-                Log.v(LOG_TAG, "onItemClick: movieId " + MovieId);
-                startActivity(intent);
+                    Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
+                            .putExtra(Intent.EXTRA_TEXT, MovieId);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -118,14 +119,11 @@ public class MainActivityFragment extends Fragment {
 
                 // NOTE: values in strings.xml for pref_sort_order_key must match the Movie DB API
                 String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_most_popular));
-                Log.v(LOG_TAG, "doInBackground: sortOrder: " + sortOrder);
-                // sortOrder = "popular";
 
                 // catch IOException already catches MalformedURLException, no need to test for
                 // null url strings here
 
                 URL url = new URL(MovieDb.buildMovieListUri(sortOrder).toString());
-                Log.v(LOG_TAG, "doInBackground: url: " + url.toString());
 
                 moviesJsonStr = MovieDb.getJson(url);
             } catch (IOException e) {
@@ -146,17 +144,12 @@ public class MainActivityFragment extends Fragment {
 
         /**
          * Add list of movies to movieListAdapter in UI thread, after query has finished.
-         * @param result
+         * @param result - list of movies to add to movieListAdapter
          */
         @Override
         protected void onPostExecute(List<Movie> result) {
             if (result != null) {
                 movieListAdapter.clear();
-                // NOTE: for Honeycomb and above, can use addAll method instead of for loop
-                // *** this updates GridView adapter with new movie data
-                // for(Movie movie : result) {
-                //    movieListAdapter.add(movie);
-                //}
                 movieListAdapter.addAll(result);
             }
         }

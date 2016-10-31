@@ -57,7 +57,7 @@ class MovieDb {
 
     /**
      * Query the Movie DB and return the results as a JSON string.
-     * @param queryUrl
+     * @param queryUrl - url
      * @return String
      */
     static String getJson(URL queryUrl) {
@@ -81,15 +81,14 @@ class MovieDb {
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
             String line;
-            // TODO: change to StringBuilder
-            // https://developer.android.com/reference/java/lang/StringBuilder.html
+            StringBuilder buffer = new StringBuilder();
 
-            StringBuffer buffer = new StringBuffer();
             while ((line = reader.readLine()) != null) {
                 // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
                 // But it does make debugging a *lot* easier if you print out the completed
                 // buffer for debugging.
-                buffer.append(line + "\n");
+                buffer.append(line);
+                buffer.append("\n");
             }
 
             if (buffer.length() == 0) {
@@ -178,7 +177,7 @@ class MovieDb {
 
     /**
      * Construct Uri to get movie details from the Movie DB.
-     * @param MovieId
+     * @param MovieId - movie_id field from the Movie DB
      * @return Uri
      *
      * The Movie DB API documentation:
@@ -207,7 +206,7 @@ class MovieDb {
 
     /**
      * Return results from the Movie DB query JSON string as a list of Movie objects.
-     * @param moviesJsonStr
+     * @param moviesJsonStr - movie list string in JSON format
      * @return List<Movie>
      * @throws JSONException
      */
@@ -232,8 +231,7 @@ class MovieDb {
 
             Movie movie = new Movie(movieJson.getInt(MDB_ID),
                     movieJson.getString(MDB_TITLE),
-                    movieJson.getString(MDB_POSTER_PATH).replaceAll("/", ""));
-            // remove all slashes
+                    movieJson.getString(MDB_POSTER_PATH).replaceAll("/", "")); // remove all slashes
 
             results.add(movie);
         }
@@ -243,7 +241,7 @@ class MovieDb {
 
     /**
      * Return Movie object from Get Movie Details query.
-     * @param moviesJsonStr
+     * @param moviesJsonStr - movie details in JSON format
      * @return Movie
      * @throws JSONException
      */
@@ -261,6 +259,7 @@ class MovieDb {
 
         JSONObject movieJson = new JSONObject(moviesJsonStr);
 
+        // release_date field in Movie DB is in the format "yyyy-MM-dd", there is no locale for this field
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date release_date = new Date();
 
@@ -270,15 +269,13 @@ class MovieDb {
             Log.e(LOG_TAG, "Error ", e);
         }
 
-        Movie results = new Movie(movieJson.getInt(MDB_ID),
+        return new Movie(movieJson.getInt(MDB_ID),
                 movieJson.getString(MDB_TITLE),
                 movieJson.getString(MDB_POSTER_PATH).replaceAll("/", ""), // remove all slashes
                 movieJson.getString(MDB_OVERVIEW),
                 release_date,
                 movieJson.getDouble(MDB_VOTE_AVG),
                 movieJson.getDouble(MDB_POPULARITY));
-
-        return results;
     }
 
 

@@ -6,7 +6,6 @@ package com.example.eric.popularmovies;
 
 import android.app.Activity;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import java.util.List;
 
 
 class MovieListAdapter extends ArrayAdapter<Movie> {
-    private static final String LOG_TAG = MovieListAdapter.class.getSimpleName();
 
     /**
      * This is our own custom constructor (it doesn't mirror a superclass constructor).
@@ -51,7 +49,6 @@ class MovieListAdapter extends ArrayAdapter<Movie> {
     public View getView(int position, View convertView, ViewGroup parent) {
         // Gets the movie object from the ArrayAdapter at the appropriate position
         Movie movie = getItem(position);
-        Log.v(LOG_TAG, "getView: position " + position);
 
         // Adapters recycle views to AdapterViews.
         // If this is a new View object we're getting, then inflate the layout.

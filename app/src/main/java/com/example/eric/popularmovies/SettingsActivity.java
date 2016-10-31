@@ -118,14 +118,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        final String LOG_TAG = SettingsActivity.class.getSimpleName();
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            //Log.v(LOG_TAG, "onMenuItemSelected: android.R.id.home");
-            // if (!super.onMenuItemSelected(featureId, item)) {
-            //Log.v(LOG_TAG, "onMenuItemSelected: Navigate Up");
             NavUtils.navigateUpFromSameTask(this);
-            // }
             return true;
         }
         return super.onMenuItemSelected(featureId, item);
@@ -155,10 +150,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment {
-        // final String LOG_TAG = SettingsActivity.class.getSimpleName();
         @Override
         public void onCreate(Bundle savedInstanceState) {
-            // Log.v(LOG_TAG, "onCreate");
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.preferences);
             setHasOptionsMenu(true);
@@ -169,7 +162,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public boolean onOptionsItemSelected(MenuItem item) {
             int id = item.getItemId();
             if (id == android.R.id.home) {
-                // Log.v(LOG_TAG, "onOptionsItemSelected:  android.R.id.home");
                 startActivity(new Intent(getActivity(), SettingsActivity.class));
                 return true;
             }
