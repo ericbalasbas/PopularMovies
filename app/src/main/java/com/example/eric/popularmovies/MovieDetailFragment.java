@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2016. Eric Balasbas
+ */
+
 package com.example.eric.popularmovies;
 
 import android.content.Context;
@@ -40,11 +44,11 @@ public class MovieDetailFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private String MovieId;
+
     public Movie movie;
 
-    public MovieDetailFragment() {
-        // Required empty public constructor
-    }
+    /** Required empty public constructor */
+    public MovieDetailFragment() {   }
 
 
     @Override
@@ -80,7 +84,7 @@ public class MovieDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
         // The detail Activity called via intent.  Inspect the intent for forecast data.
@@ -89,10 +93,9 @@ public class MovieDetailFragment extends Fragment {
             MovieId = intent.getStringExtra(Intent.EXTRA_TEXT);
             Log.v(LOG_TAG, "onCreateView: MovieId " + MovieId); // MovieId shows up correctly
         }
-        // Inflate the layout for this fragment
+
         return rootView;
     }
-
 
 
     @Override
@@ -125,17 +128,12 @@ public class MovieDetailFragment extends Fragment {
      *  Caused by: java.lang.RuntimeException: com.example.eric.popularmovies.MovieDetailActivity@466b5c5 must implement OnFragmentInteractionListener
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Implement in MovieDetailActivity. Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
 
     private void updateMovieDetail(Context context, View rootView) {
-
         FetchMovieTask movieTask = new FetchMovieTask(context, rootView);
-        // SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        // String location = prefs.getString(getString(R.string.pref_location_key),
-        //        getString(R.string.pref_location_default));
         movieTask.execute();
     }
 
@@ -199,8 +197,6 @@ public class MovieDetailFragment extends Fragment {
                 Picasso.with(context)
                         .load(uri)
                         .into(imageView);
-                // .placeholder(R.drawable.placeholder)
-                // .error(R.drawable.error)
 
                 // TODO: format date for locale
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -217,6 +213,5 @@ public class MovieDetailFragment extends Fragment {
 
             }
         }
-
     }
 }

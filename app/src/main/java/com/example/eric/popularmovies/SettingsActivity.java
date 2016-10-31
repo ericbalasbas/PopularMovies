@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2016. Eric Balasbas
+ */
+
+
 package com.example.eric.popularmovies;
 
 
@@ -134,16 +139,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         return isXLargeTablet(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    /*
-    @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void onBuildHeaders(List<Header> target) {
-        loadHeadersFromResource(R.xml.pref_headers, target);
-    }
-    */
+
     /**
      * This method stops fragment injection in malicious applications.
      * Make sure to deny any unknown fragments here.

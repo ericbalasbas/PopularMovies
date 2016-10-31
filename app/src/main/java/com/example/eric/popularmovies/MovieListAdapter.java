@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2016. Eric Balasbas
+ */
+
 package com.example.eric.popularmovies;
 
 import android.app.Activity;
@@ -65,8 +69,6 @@ class MovieListAdapter extends ArrayAdapter<Movie> {
             Picasso.with(this.getContext())
                    .load(uri)
                    .into(imageView);
-            // .placeholder(R.drawable.placeholder)
-            // .error(R.drawable.error)
         }
 
         return convertView;

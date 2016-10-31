@@ -1,7 +1,18 @@
+/*
+ * Copyright (c) 2016. Eric Balasbas
+ */
+
 package com.example.eric.popularmovies;
 
 import java.util.Date;
 
+/**
+ * Class to store movie information from the Movie DB API.
+ * Currently use three queries to the Movie DB:
+ * https://developers.themoviedb.org/3/movies/get-popular-movies
+ * https://developers.themoviedb.org/3/movies/get-top-rated-movies
+ * https://developers.themoviedb.org/3/movies/get-movie-details
+ */
 class Movie {
     int id;
     String poster_path, title, overview;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2016. Eric Balasbas
+ */
+
 package com.example.eric.popularmovies;
 
 import android.content.Intent;
@@ -7,9 +11,13 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-// TODO: implement MainActivityFragment.OnItemSelectedListener
+
 public class MainActivity extends AppCompatActivity {
 
+    /**
+     * Load preferences and set activity layout.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -18,6 +26,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
+    /**
+     * Initialize standard options menu.
+     * @param menu
+     * @return boolean
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -26,6 +39,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Start Settings Activity when options menu is selected.
+     * @param item
+     * @return boolean
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will

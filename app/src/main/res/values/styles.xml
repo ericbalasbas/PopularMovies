@@ -11,10 +11,11 @@
         <item name="android:colorBackground">@color/Black</item>
         <item name="android:colorForeground">@color/White</item>
 
-        -->
+
         <item name="android:textColorPrimary">@color/White</item>
         <item name="android:textColor">@color/White</item>
         <item name="android:textColorSecondary">@color/White</item>
+        -->
     </style>
 
 </resources>

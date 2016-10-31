@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2016. Eric Balasbas
+ */
+
 package com.example.eric.popularmovies;
 
 import android.app.Activity;
@@ -23,14 +27,17 @@ import java.util.Date;
 import java.util.List;
 
 
+/**
+ * Class of static methods used to connect to the Movie DB, and parse query results.
+ */
 class MovieDb {
     private static final String LOG_TAG = MovieDb.class.getSimpleName();
 
     MovieDb() {  }
 
 
-    /*
-     *
+    /**
+     * Test if network connection is on
      * @return boolean
      *
      * from http://stackoverflow.com/questions/1560788/how-to-check-internet-access-on-android-inetaddress-never-times-out
@@ -48,10 +55,16 @@ class MovieDb {
                 cm.getActiveNetworkInfo().isConnectedOrConnecting();
     }
 
+    /**
+     * Query the Movie DB and return the results as a JSON string.
+     * @param queryUrl
+     * @return String
+     */
     static String getJson(URL queryUrl) {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
+        // Must use finally clause because try-with-resources statement not supported in Android API 15
         try {
             // Create the request to TheMovieDB, and open the connection
             urlConnection = (HttpURLConnection) queryUrl.openConnection();
@@ -88,7 +101,7 @@ class MovieDb {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the movie data, there's no point in attempting
             // to parse it.
-            return null;
+            return "";
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -102,15 +115,16 @@ class MovieDb {
             }
         }
     }
+
     /***
-     *
+     * Construct Uri required to get movie poster from the Movie DB.
      * @param poster_path - from Movie DB API
-     * @return uri for movie poster for use in Picasso.load(android.net.Uri uri)
+     * @return Uri for movie poster for use in Picasso.load(android.net.Uri uri)
      *
      * to construct url for movie poster
      * base url: http://image.tmdb.org/t/p/
      * size: "w92", "w154", "w185" (recommended), "w342", "w500", "w780", or "original"
-     * poster_path
+     * poster_path: /nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg
      * for example: http://image.tmdb.org/t/p/w185/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg
      *
      */
@@ -131,17 +145,20 @@ class MovieDb {
         }
     }
 
-
+    /**
+     * Construct Uri to get movie list from the Movie DB.
+     * @param vSortOrder - must match Get Popular Movies or Get Top Rated Movies command from the Movie DB API.
+     * @return Uri
+     *
+     * The Movie DB API documentation:
+     * Get Popular Movies command: https://developers.themoviedb.org/3/movies/get-popular-movies
+     * Get Top Rated Movies command: https://developers.themoviedb.org/3/movies/get-top-rated-movies
+     *
+     * Example: https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US
+     * Example: example: https://api.themoviedb.org/3/movie/top_rated?api_key=<<api_key>>&language=en-US
+     */
     static Uri buildMovieListUri(String vSortOrder) {
 
-        // Construct Uri for query to TheMovieDB.org API
-        // https://www.themoviedb.org/documentation/api
-
-        // example: https://api.themoviedb.org/3/movie/popular?api_key=<<api_key>>&language=en-US
-        // final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/popular?";
-        // final String POPULAR_PATH = "popular";
-        // final String TOP_RATED_PATH = "top_rated";
-        // final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/top_rated?";
         final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie";
         final String LANGUAGE_PARAM = "language";
         final String API_KEY_PARAM = "api_key";
@@ -159,15 +176,19 @@ class MovieDb {
         }
     }
 
-
+    /**
+     * Construct Uri to get movie details from the Movie DB.
+     * @param MovieId
+     * @return Uri
+     *
+     * The Movie DB API documentation:
+     * Get Movie Details: https://developers.themoviedb.org/3/movies/get-movie-details
+     *
+     * Example: https://api.themoviedb.org/3/movie/{movie_id}?api_key=<<api_key>>&language=en-US
+     */
     static Uri buildMovieDetailUri(String MovieId) {
-
-        // Construct Uri for query to TheMovieDB.org API
-        // https://www.themoviedb.org/documentation/api
-
         final String language = "en-US";
 
-        // https://api.themoviedb.org/3/movie/{movie_id}?api_key=<<api_key>>&language=en-US
         final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/";
         final String LANGUAGE_PARAM = "language";
         final String API_KEY_PARAM = "api_key";
@@ -184,8 +205,12 @@ class MovieDb {
         }
     }
 
-
-
+    /**
+     * Return results from the Movie DB query JSON string as a list of Movie objects.
+     * @param moviesJsonStr
+     * @return List<Movie>
+     * @throws JSONException
+     */
     static List<Movie> getMovieListDataFromJson(String moviesJsonStr)
             throws JSONException {
         // The Movie DB popular movies query returns a page number, and results array
@@ -216,6 +241,12 @@ class MovieDb {
         return results;
     }
 
+    /**
+     * Return Movie object from Get Movie Details query.
+     * @param moviesJsonStr
+     * @return Movie
+     * @throws JSONException
+     */
     static Movie getMovieDetailDataFromJson(String moviesJsonStr)
             throws JSONException {
 

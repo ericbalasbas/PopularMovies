@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2016. Eric Balasbas
+ */
+
 package com.example.eric.popularmovies;
 
 import android.content.Context;
@@ -22,15 +26,19 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Fragment that contains the grid view of movies.
+ */
 public class MainActivityFragment extends Fragment {
 
     public MovieListAdapter movieListAdapter;
 
-    public MainActivityFragment() {
-        // Required empty public constructor
-    }
+    /** Required empty public constructor */
+    public MainActivityFragment() {  }
 
+    /**
+     * Query the Movie DB for movie list if there is network access, otherwise load toast to warn user.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -49,6 +57,13 @@ public class MainActivityFragment extends Fragment {
 
     }
 
+    /**
+     * Load GridView with list of Movie objects from movieListAdapter.
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return View
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -58,11 +73,13 @@ public class MainActivityFragment extends Fragment {
 
         movieListAdapter = new MovieListAdapter(getActivity(), new ArrayList<Movie>());
 
-        // Get a reference to the ListView, and attach this adapter to it.
+        // Get a reference to the GridView, and attach this adapter to it.
         GridView gridView = (GridView) rootView.findViewById(R.id.movies_grid);
         gridView.setAdapter(movieListAdapter);
 
-        // TODO: Refactor into MainActivity
+        /**
+         * Start movie detail activity when grid view item is clicked.
+         */
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View v,
@@ -85,7 +102,9 @@ public class MainActivityFragment extends Fragment {
         movieTask.execute();
     }
 
-
+    /**
+     * Fetch list of movies in background thread, parse results and load list into movieListAdapter.
+     */
     public class FetchMovieListTask extends AsyncTask<String, Void, List<Movie>> {
         private final String LOG_TAG = FetchMovieListTask.class.getSimpleName();
 
@@ -98,8 +117,7 @@ public class MainActivityFragment extends Fragment {
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
                 // NOTE: values in strings.xml for pref_sort_order_key must match the Movie DB API
-                String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key),
-                        getString(R.string.pref_most_popular));
+                String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString(R.string.pref_most_popular));
                 Log.v(LOG_TAG, "doInBackground: sortOrder: " + sortOrder);
                 // sortOrder = "popular";
 
@@ -126,6 +144,10 @@ public class MainActivityFragment extends Fragment {
             return null;
         }
 
+        /**
+         * Add list of movies to movieListAdapter in UI thread, after query has finished.
+         * @param result
+         */
         @Override
         protected void onPostExecute(List<Movie> result) {
             if (result != null) {

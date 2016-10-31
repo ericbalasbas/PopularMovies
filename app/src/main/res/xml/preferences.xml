@@ -10,5 +10,6 @@
         android:entryValues="@array/pref_sort_order_values"
         android:entries="@array/pref_sort_order_options"
         android:summary="%s"/>
+    <!--  https://developer.android.com/reference/android/preference/ListPreference.html#getSummary%28%29   -->
 
 </PreferenceScreen>

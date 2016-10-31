@@ -20,12 +20,14 @@
     <string name="pref_sort_order_key" translatable="false">sort_order</string>
 
     <!-- Value in SharedPreferences for Most Popular option [CHAR LIMIT=NONE]
-          MUST match the Movie DB API https://developers.themoviedb.org/3/movies/get-popular-movies
+          MUST match the Movie DB API Get Popular Movies command:
+          https://developers.themoviedb.org/3/movies/get-popular-movies
           -->
     <string name="pref_most_popular" translatable="false">popular</string>
 
     <!-- Value in SharedPreferences for Highest Rated option [CHAR LIMIT=NONE]
-          MUST match the Movie DB API https://developers.themoviedb.org/3/movies/get-top-rated-movies
+          MUST match the Movie DB API Get Top Rated Movies command:
+          https://developers.themoviedb.org/3/movies/get-top-rated-movies
           -->
     <string name="pref_top_rated" translatable="false">top_rated</string>
 
