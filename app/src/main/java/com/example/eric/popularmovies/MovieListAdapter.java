@@ -65,6 +65,8 @@ class MovieListAdapter extends ArrayAdapter<Movie> {
             Uri uri = MovieDb.buildPosterUri(movie.poster_path);
             Picasso.with(this.getContext())
                    .load(uri)
+                   .placeholder(R.drawable.place_holder_185x277)
+                   .error(R.drawable.error_185x277)
                    .into(imageView);
         }
 
