@@ -19,6 +19,7 @@ import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
+import android.util.Log;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
@@ -39,6 +40,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
+
+    private static final String LOG_TAG = SettingsActivity.class.getSimpleName();
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
@@ -55,6 +58,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         index >= 0
                                 ? listPreference.getEntries()[index]
                                 : null);
+
+
 
             } else {
                 // For all other preferences, set the summary to the value's
@@ -119,10 +124,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         int id = item.getItemId();
+
+        // reset sortOrderChanged flag in MainActivityFragment so that new query to MovieDB is run
+        MainActivityFragment.sortOrderChanged = true;
+
         if (id == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
             return true;
         }
+
         return super.onMenuItemSelected(featureId, item);
     }
 

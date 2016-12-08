@@ -9,10 +9,18 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+
+import java.text.DateFormat;
+import java.text.NumberFormat;
 
 
 /**
@@ -27,45 +35,34 @@ import android.widget.Toast;
  */
 public class MovieDetailFragment extends Fragment {
 
+    private final String LOG_TAG = MovieDetailFragment.class.getSimpleName();
     private OnFragmentInteractionListener mListener;
     private String MovieId;
 
-    public Movie movie;
+    public static Movie movie;
 
     /** Required empty public constructor */
-    public MovieDetailFragment() {   }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        Context context = this.getContext();
-        // http://stackoverflow.com/questions/6495898/findviewbyid-in-fragment
-        // cannot use getView in onCreate(), onCreateView() methods of the fragment
-
-        View rootView = getView().findViewById(R.id.activity_movie_detail);
-
-        if (MovieDb.isOnline(getActivity())) {  // if network is online, get movie detail
-            updateMovieDetail(MovieId, movie, context, rootView);
-        }
-        else {
-            CharSequence text = "Cannot connect to internet. Please turn off airplane mode or turn on wifi. ";
-            int duration = Toast.LENGTH_LONG;
-
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-        }
-    }
+    public MovieDetailFragment() { }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("movie")) {
+            movie = savedInstanceState.getParcelable("movie");
+        }
+
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
@@ -78,17 +75,34 @@ public class MovieDetailFragment extends Fragment {
         return rootView;
     }
 
-
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+    public void onStart() {
+        super.onStart();
+
+        Context context = this.getContext();
+        // http://stackoverflow.com/questions/6495898/findviewbyid-in-fragment
+        // cannot use getView in onCreate(), onCreateView() methods of the fragment
+
+        View rootView = getView().findViewById(R.id.activity_movie_detail);
+
+        if (MovieDb.isOnline(getActivity())) { // if network is online, get movie detail
+            if (movie == null || movie.id != Integer.parseInt(MovieId)) {
+                updateMovieDetail(MovieId, movie, context, rootView);
+            } else {
+                // if movie has not changed, do not query for movie details again
+                // update text and image views from movie object
+                updateMovieDetailViews(movie, getView().findViewById(R.id.activity_movie_detail), this.getContext());
+            }
+        }
+        else {
+            CharSequence text = "Cannot connect to internet. Please turn off airplane mode or turn on wifi. ";
+            int duration = Toast.LENGTH_LONG;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
         }
     }
+
 
     @Override
     public void onDetach() {
@@ -116,6 +130,40 @@ public class MovieDetailFragment extends Fragment {
     private void updateMovieDetail(String vMovieId, Movie vMovie, Context vContext, View vRootView) {
         FetchMovieTask movieTask = new FetchMovieTask(vMovieId, vMovie, vContext, vRootView);
         movieTask.execute();
+    }
+
+    public static void updateMovieDetailViews(Movie vMovie, View vRootView, Context vContext) {
+        if (vRootView == null) {
+            vRootView = LayoutInflater.from(vContext).inflate(
+                    R.layout.fragment_movie_detail, null, false);
+        }
+
+        ImageView imageView = (ImageView) vRootView.findViewById(R.id.movie_poster);
+
+        Uri uri = MovieDb.buildPosterUri(vMovie.poster_path);
+        Picasso.with(vContext)
+                .load(uri)
+                .placeholder(R.drawable.place_holder_185x277)
+                .error(R.drawable.error_185x277)
+                .into(imageView);
+
+        DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM);
+        NumberFormat numberFormat = NumberFormat.getNumberInstance();
+
+        TextView titleView = (TextView) vRootView.findViewById(R.id.title);
+        titleView.setText(vMovie.title);
+        TextView releaseDateView = (TextView) vRootView.findViewById(R.id.release_date);
+        releaseDateView.setText(format.format(vMovie.release_date));
+        TextView voteAverageView = (TextView) vRootView.findViewById(R.id.vote_average);
+        voteAverageView.setText(numberFormat.format(vMovie.vote_average));
+        TextView overviewView = (TextView) vRootView.findViewById(R.id.overview);
+        overviewView.setText(vMovie.overview);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("movie", movie);
+        super.onSaveInstanceState(outState);
     }
 
 }

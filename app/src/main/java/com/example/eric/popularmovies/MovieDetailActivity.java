@@ -50,6 +50,6 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
      *  Caused by: java.lang.RuntimeException: com.example.eric.popularmovies.MovieDetailActivity@466b5c5 must implement OnFragmentInteractionListener
      */
     @Override
-    public void onFragmentInteraction(Uri uri) {   }
+    public void onFragmentInteraction(Uri uri) { }
 
 }

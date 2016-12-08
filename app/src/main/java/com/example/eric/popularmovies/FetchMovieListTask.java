@@ -15,6 +15,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -77,6 +78,8 @@ class FetchMovieListTask extends AsyncTask<String, Void, List<Movie>> {
         if (result != null) {
             movieListAdapter.clear();
             movieListAdapter.addAll(result);
+            // Save result to MainActivityFragment.movieList
+            MainActivityFragment.movieList = new ArrayList<>(result);
         }
     }
 

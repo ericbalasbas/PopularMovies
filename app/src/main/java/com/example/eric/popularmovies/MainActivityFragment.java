@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,30 +23,17 @@ import java.util.ArrayList;
  */
 public class MainActivityFragment extends Fragment {
 
+    private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     public MovieListAdapter movieListAdapter;
+    public static ArrayList<Movie> movieList;
+    public static boolean sortOrderChanged = true;
 
     /** Required empty public constructor */
-    public MainActivityFragment() {  }
+    public MainActivityFragment() { }
 
-    /**
-     * Query the Movie DB for movie list if there is network access, otherwise load toast to warn user.
-     */
     @Override
-    public void onStart() {
-        super.onStart();
-
-        if (MovieDb.isOnline(getActivity())) {  // if network is online, get movie list
-            updateMovieList();
-        }
-        else {
-            Context context = this.getContext();
-            CharSequence text = "Cannot connect to internet. Please turn off airplane mode or turn on wifi. ";
-            int duration = Toast.LENGTH_LONG;
-
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-        }
-
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     /**
@@ -59,10 +47,14 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        movieListAdapter = new MovieListAdapter(getActivity(), new ArrayList<Movie>());
+        if (movieList != null && !sortOrderChanged) {
+            movieListAdapter = new MovieListAdapter(getActivity(), movieList);
+        }
+        else {
+            movieListAdapter = new MovieListAdapter(getActivity(), new ArrayList<Movie>());
+        }
 
         // Get a reference to the GridView, and attach this adapter to it.
         GridView gridView = (GridView) rootView.findViewById(R.id.movies_grid);
@@ -89,10 +81,41 @@ public class MainActivityFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * Query the Movie DB for movie list if there is network access, otherwise load toast to warn user.
+     */
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (MovieDb.isOnline(getActivity())) {  // if network is online, get movie list
+            if (movieList == null || sortOrderChanged) {
+                updateMovieList();
+                sortOrderChanged = false;
+            }
+        }
+        else {
+            Context context = this.getContext();
+            CharSequence text = "Cannot connect to internet. Please turn off airplane mode or turn on wifi. ";
+            int duration = Toast.LENGTH_LONG;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
+    }
+
+
     private void updateMovieList() {
         FetchMovieListTask movieTask = new FetchMovieListTask(getActivity(), getContext(), movieListAdapter);
         movieTask.execute();
     }
 
-}
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (!movieList.isEmpty()) {
+            outState.putParcelableArrayList("MovieList", movieList);
+        }
+        super.onSaveInstanceState(outState);
+    }
+}

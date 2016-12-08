@@ -6,22 +6,16 @@ package com.example.eric.popularmovies;
 
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.NumberFormat;
+
 
 class FetchMovieTask extends AsyncTask<String, Void, Movie> {
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();
@@ -79,32 +73,10 @@ class FetchMovieTask extends AsyncTask<String, Void, Movie> {
 
             movie = result;
 
-            if (rootView == null) {
-                rootView = LayoutInflater.from(context).inflate(
-                        R.layout.fragment_movie_detail, null, false);
-            }
+            // need to assign result, otherwise onSaveInstanceState does not work
+            MovieDetailFragment.movie = result;
 
-            ImageView imageView = (ImageView) rootView.findViewById(R.id.movie_poster);
-
-            Uri uri = MovieDb.buildPosterUri(movie.poster_path);
-            Picasso.with(context)
-                    .load(uri)
-                    .placeholder(R.drawable.place_holder_185x277)
-                    .error(R.drawable.error_185x277)
-                    .into(imageView);
-
-            DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM);
-            NumberFormat numberFormat = NumberFormat.getNumberInstance();
-
-            TextView titleView = (TextView) rootView.findViewById(R.id.title);
-            titleView.setText(movie.title);
-            TextView releaseDateView = (TextView) rootView.findViewById(R.id.release_date);
-            releaseDateView.setText(format.format(movie.release_date));
-            TextView voteAverageView = (TextView) rootView.findViewById(R.id.vote_average);
-            voteAverageView.setText(numberFormat.format(movie.vote_average));
-            TextView overviewView = (TextView) rootView.findViewById(R.id.overview);
-            overviewView.setText(movie.overview);
-
+            MovieDetailFragment.updateMovieDetailViews(movie, rootView, context);
         }
     }
 }
