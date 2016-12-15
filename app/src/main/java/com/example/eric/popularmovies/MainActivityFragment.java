@@ -25,8 +25,8 @@ public class MainActivityFragment extends Fragment {
 
     private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     public MovieListAdapter movieListAdapter;
-    public static ArrayList<Movie> movieList;
-    public static boolean sortOrderChanged = true;
+    protected static ArrayList<Movie> movieList;
+    protected static boolean sortOrderChanged = true;
 
     /** Required empty public constructor */
     public MainActivityFragment() { }

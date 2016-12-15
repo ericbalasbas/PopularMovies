@@ -9,10 +9,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +24,7 @@ import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.util.List;
 
 
 /**
@@ -39,7 +43,8 @@ public class MovieDetailFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private String MovieId;
 
-    public static Movie movie;
+    protected static Movie movie;
+    protected static List<MovieTrailer> movieTrailers;
 
     /** Required empty public constructor */
     public MovieDetailFragment() { }
@@ -92,6 +97,7 @@ public class MovieDetailFragment extends Fragment {
                 // if movie has not changed, do not query for movie details again
                 // update text and image views from movie object
                 updateMovieDetailViews(movie, getView().findViewById(R.id.activity_movie_detail), this.getContext());
+                updateMovieDetailTrailer(MovieTrailer.getTrailer(movieTrailers), getView().findViewById(R.id.activity_movie_detail), this.getContext());
             }
         }
         else {
@@ -101,6 +107,7 @@ public class MovieDetailFragment extends Fragment {
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
         }
+
     }
 
 
@@ -130,6 +137,9 @@ public class MovieDetailFragment extends Fragment {
     private void updateMovieDetail(String vMovieId, Movie vMovie, Context vContext, View vRootView) {
         FetchMovieTask movieTask = new FetchMovieTask(vMovieId, vMovie, vContext, vRootView);
         movieTask.execute();
+
+        FetchMovieTrailersTask movieTrailersTask = new FetchMovieTrailersTask(vMovieId, vContext, vRootView);
+        movieTrailersTask.execute();
     }
 
     public static void updateMovieDetailViews(Movie vMovie, View vRootView, Context vContext) {
@@ -158,6 +168,30 @@ public class MovieDetailFragment extends Fragment {
         voteAverageView.setText(numberFormat.format(vMovie.vote_average));
         TextView overviewView = (TextView) vRootView.findViewById(R.id.overview);
         overviewView.setText(vMovie.overview);
+    }
+
+    public static void updateMovieDetailTrailer(MovieTrailer vMovieTrailer, View vRootView, Context vContext) {
+        if (vRootView == null) {
+            vRootView = LayoutInflater.from(vContext).inflate(
+                    R.layout.fragment_movie_detail, null, false);
+        }
+
+        String frameVideo = String.format("<html><body>%s<br><iframe width=\"420\" height=\"315\" src=\"https://www.youtube.com/embed/%s\" frameborder=\"0\" allowfullscreen></iframe></body></html>",
+                                            vMovieTrailer.name,
+                                            vMovieTrailer.key);
+
+        WebView trailer = (WebView) vRootView.findViewById(R.id.trailer);
+        trailer.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest url) {
+                return false; // TODO: test if true
+            }
+        });
+        WebSettings webSettings = trailer.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        trailer.loadData(frameVideo, "text/html", "utf-8");
+
+
     }
 
     @Override

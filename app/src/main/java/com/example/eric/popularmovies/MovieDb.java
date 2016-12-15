@@ -157,7 +157,6 @@ class MovieDb {
      * Example: example: https://api.themoviedb.org/3/movie/top_rated?api_key=<<api_key>>&language=en-US
      */
     static Uri buildMovieListUri(String vSortOrder) {
-
         final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie";
         final String LANGUAGE_PARAM = "language";
         final String API_KEY_PARAM = "api_key";
@@ -187,7 +186,6 @@ class MovieDb {
      */
     static Uri buildMovieDetailUri(String MovieId) {
         final String language = "en-US";
-
         final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/";
         final String LANGUAGE_PARAM = "language";
         final String API_KEY_PARAM = "api_key";
@@ -195,6 +193,36 @@ class MovieDb {
         try {
             return Uri.parse(MOVIE_BASE_URL).buildUpon()
                     .appendPath(MovieId)
+                    .appendQueryParameter(LANGUAGE_PARAM, language)
+                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
+                    .build();
+        } catch (UnsupportedOperationException e) {
+            Log.e(LOG_TAG, "Error ", e);
+            return null;
+        }
+    }
+
+    /**
+     * Construct Uri to get movie trailers from the Movie DB.
+     * @param MovieId - movie_id field from the Movie DB
+     * @return Uri
+     *
+     * The Movie DB API documentation:
+     * Get Movie Videos: https://developers.themoviedb.org/3/movies/get-movie-videos
+     *
+     * Example: https://api.themoviedb.org/3/movie/{movie_id}/videos?api_key=<<api_key>>&language=en-US
+     */
+    static Uri buildMovieTrailerUri(String MovieId) {
+        final String language = "en-US";
+        final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/";
+        final String VIDEOS_PARAM = "videos";
+        final String LANGUAGE_PARAM = "language";
+        final String API_KEY_PARAM = "api_key";
+
+        try {
+            return Uri.parse(MOVIE_BASE_URL).buildUpon()
+                    .appendPath(MovieId)
+                    .appendPath(VIDEOS_PARAM)
                     .appendQueryParameter(LANGUAGE_PARAM, language)
                     .appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
                     .build();
@@ -279,4 +307,48 @@ class MovieDb {
     }
 
 
+    /**
+     * Return results from the Movie DB query JSON string as a list of MovieTrailer objects.
+     * @param movieTrailersJsonStr - movie list string in JSON format
+     * @return List<MovieTrailer>
+     * @throws JSONException
+     */
+    static List<MovieTrailer> getMovieTrailersDataFromJson(String movieTrailersJsonStr)
+            throws JSONException {
+
+        // The Movie DB get movie videos query returns a movie id, and results array
+
+        // These are the names of the JSON objects that need to be extracted.
+        final String MDB_RESULTS = "results";
+        final String MDB_ID = "id";
+        final String MDB_KEY = "key";
+        final String MDB_NAME = "name";
+        final String MDB_SITE = "site";
+        final String MDB_SIZE = "size";
+        final String MDB_TYPE = "type";
+
+// String vId, int vMovieId, String vKey, String vName, String vSite, String vSize, String vType
+
+        JSONObject movieQueryResults = new JSONObject(movieTrailersJsonStr);
+        JSONArray movieArray = movieQueryResults.getJSONArray(MDB_RESULTS);
+        int movieId = movieQueryResults.getInt(MDB_ID);
+
+        List<MovieTrailer> results = new ArrayList<>();
+
+        for(int i = 0; i < movieArray.length(); i++) {
+            JSONObject movieJson = movieArray.getJSONObject(i);
+
+            MovieTrailer movie = new MovieTrailer(movieJson.getString(MDB_ID),
+                    movieId,
+                    movieJson.getString(MDB_KEY),
+                    movieJson.getString(MDB_NAME),
+                    movieJson.getString(MDB_SITE),
+                    movieJson.getString(MDB_SIZE),
+                    movieJson.getString(MDB_TYPE)); // remove all slashes
+
+            results.add(movie);
+        }
+
+        return results;
+    }
 }
