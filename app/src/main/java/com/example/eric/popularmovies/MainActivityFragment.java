@@ -26,6 +26,7 @@ public class MainActivityFragment extends Fragment {
     private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     public MovieListAdapter movieListAdapter;
     protected static ArrayList<Movie> movieList;
+    protected static ArrayList<Movie> favoritesList;
     protected static boolean sortOrderChanged = true;
 
     /** Required empty public constructor */
@@ -34,7 +35,11 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState!= null && savedInstanceState.containsKey("favoritesList")) {
+            favoritesList = savedInstanceState.getParcelableArrayList("favoritesList");
+        }
     }
+
 
     /**
      * Load GridView with list of Movie objects from movieListAdapter.
@@ -113,8 +118,12 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (!movieList.isEmpty()) {
-            outState.putParcelableArrayList("MovieList", movieList);
+        if (movieList != null && !movieList.isEmpty()) {
+            outState.putParcelableArrayList("movieList", movieList);
+        }
+
+        if (favoritesList != null && !favoritesList.isEmpty()) {
+            outState.putParcelableArrayList("favoritesList", favoritesList);
         }
         super.onSaveInstanceState(outState);
     }

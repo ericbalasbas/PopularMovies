@@ -5,6 +5,7 @@
 package com.example.eric.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,16 +13,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-
-import java.text.DateFormat;
-import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,12 +30,14 @@ import java.util.List;
  * Even though we have all of the data from the initial query, in Project Part 2 we will have to make
  * another query anyway.
  */
-public class MovieDetailFragment extends Fragment {
+
+public class TrailersFragment extends Fragment {
+
     public static final String ARG_PAGE = "ARG_PAGE";
     public static final String MOVIE_ID = "MOVIE_ID";
     private int mPage;
-    private final String LOG_TAG = MovieDetailFragment.class.getSimpleName();
-    private OnFragmentInteractionListener mListener;
+    private final String LOG_TAG = TrailersFragment.class.getSimpleName();
+    private TrailersFragment.OnFragmentInteractionListener mListener;
     private String MovieId;
 
     protected static Movie movie;
@@ -46,13 +45,13 @@ public class MovieDetailFragment extends Fragment {
     protected MovieTrailerListAdapter movieTrailerListAdapter;
 
     /** Required empty public constructor */
-    public MovieDetailFragment() { }
+    public TrailersFragment() { }
 
-    public static MovieDetailFragment newInstance(int page, String movieId) {
+    public static TrailersFragment newInstance(int page, String movieId) {
         Bundle args = new Bundle();
         args.putInt(ARG_PAGE, page);
         args.putString(MOVIE_ID, movieId);
-        MovieDetailFragment fragment = new MovieDetailFragment();
+        TrailersFragment fragment = new TrailersFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -60,8 +59,8 @@ public class MovieDetailFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof TrailersFragment.OnFragmentInteractionListener) {
+            mListener = (TrailersFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -71,19 +70,47 @@ public class MovieDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         mPage = getArguments().getInt(ARG_PAGE);
         MovieId = getArguments().getString(MOVIE_ID);
 
         if (savedInstanceState != null && savedInstanceState.containsKey("movie")) {
             movie = savedInstanceState.getParcelable("movie");
+            // TODO: load saved movieTrailerListAdapter here
         }
 
         // Inflate the layout for this fragment
         // View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
         View rootView = DetailPagerAdapter.getTabView(mPage, getContext());
 
+        // The detail Activity called via intent.  Inspect the intent for forecast data.
+        Intent intent = getActivity().getIntent();
+        if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+            MovieId = intent.getStringExtra(Intent.EXTRA_TEXT);
+        }
+
+        // Get a reference to the Trailers ListView, and attach this adapter to it.
+        movieTrailerListAdapter = new MovieTrailerListAdapter(getActivity(), new ArrayList<MovieTrailer>());
+        ListView listView = (ListView) rootView.findViewById(R.id.fragment_movie_trailers);
+        listView.setAdapter(movieTrailerListAdapter);
+
+        // http://stackoverflow.com/questions/574195/android-youtube-app-play-video-intent
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View v,
+                                    int position, long id) {
+                if (movieTrailerListAdapter.getItem(position) != null) {
+                    Uri uri = MovieDb.buildYoutubeUri(movieTrailerListAdapter.getItem(position));
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+            }
+        });
+
         return rootView;
     }
+
+
 
     @Override
     public void onStart() {
@@ -93,19 +120,11 @@ public class MovieDetailFragment extends Fragment {
         // http://stackoverflow.com/questions/6495898/findviewbyid-in-fragment
         // cannot use getView in onCreate(), onCreateView() methods of the fragment
 
-        View rootView = getView().findViewById(R.id.fragment_movie_detail);
         Log.v(LOG_TAG, "onStart: mPage: " + Integer.toString(mPage));
-        // View rootView = DetailPagerAdapter.getTabView(mPage, this.getContext());
-        Log.v(LOG_TAG, "onStart: rootView.id: " + Integer.toString(rootView.getId()));
 
         if (MovieDb.isOnline(getActivity())) { // if network is online, get movie detail
             if (movie == null || movie.id != Integer.parseInt(MovieId)) {
-                updateMovieDetail(MovieId, movie, context, rootView);
-
-            } else {
-                // if movie has not changed, do not query for movie details again
-                // update text and image views from movie object
-                updateMovieDetailViews(movie, getView().findViewById(R.id.fragment_movie_detail), this.getContext());
+                updateMovieTrailers(MovieId, movieTrailerListAdapter);
             }
         }
         else {
@@ -142,46 +161,15 @@ public class MovieDetailFragment extends Fragment {
     }
 
 
-    private void updateMovieDetail(String vMovieId, Movie vMovie, Context vContext, View vRootView) {
-        FetchMovieTask movieTask = new FetchMovieTask(vMovieId, vMovie, vContext, vRootView);
-        movieTask.execute();
+    private void updateMovieTrailers(String vMovieId, MovieTrailerListAdapter vMovieTrailerListAdapter) {
+        FetchMovieTrailersTask movieTrailersTask = new FetchMovieTrailersTask(vMovieId, vMovieTrailerListAdapter);
+        movieTrailersTask.execute();
     }
-
-
-    public static void updateMovieDetailViews(Movie vMovie, View vRootView, Context vContext) {
-        if (vRootView == null) {
-            vRootView = LayoutInflater.from(vContext).inflate(
-                    R.layout.fragment_movie_detail, null, false);
-
-        }
-
-        ImageView imageView = (ImageView) vRootView.findViewById(R.id.movie_poster);
-
-        Uri uri = MovieDb.buildPosterUri(vMovie.poster_path);
-        Picasso.with(vContext)
-                .load(uri)
-                .placeholder(R.drawable.place_holder_185x277)
-                .error(R.drawable.error_185x277)
-                .into(imageView);
-
-        DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM);
-        NumberFormat numberFormat = NumberFormat.getNumberInstance();
-
-        TextView titleView = (TextView) vRootView.findViewById(R.id.title);
-        titleView.setText(vMovie.title);
-        TextView releaseDateView = (TextView) vRootView.findViewById(R.id.release_date);
-        releaseDateView.setText(format.format(vMovie.release_date));
-        TextView voteAverageView = (TextView) vRootView.findViewById(R.id.vote_average);
-        voteAverageView.setText(numberFormat.format(vMovie.vote_average));
-        TextView overviewView = (TextView) vRootView.findViewById(R.id.overview);
-        overviewView.setText(vMovie.overview);
-    }
-
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable("movie", movie);
+        // outState.putParcelable("movie", movie);
+        // TODO: save movieTrailerList here
         super.onSaveInstanceState(outState);
     }
-
 }

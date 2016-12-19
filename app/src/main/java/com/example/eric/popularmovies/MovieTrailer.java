@@ -4,8 +4,6 @@
 
 package com.example.eric.popularmovies;
 
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Class to store movie trailer information from the Movie DB API.
@@ -28,16 +26,4 @@ class MovieTrailer {
         this.type = vType;
     }
 
-    static MovieTrailer getTrailer(List<MovieTrailer> trailers) {
-        MovieTrailer movieTrailer;
-        Iterator<MovieTrailer> trailerIterator = trailers.iterator();
-
-        while (trailerIterator.hasNext()) {
-            movieTrailer = trailerIterator.next();
-            if (movieTrailer.site.equalsIgnoreCase("YouTube") && movieTrailer.type.equalsIgnoreCase("Trailer")) {
-                return movieTrailer;
-            }
-        }
-        return null;
-    }
 }

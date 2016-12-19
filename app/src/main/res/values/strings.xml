@@ -33,4 +33,7 @@
 
     <string name="title_activity_settings">Settings</string>
 
+    <!-- Default text for review content field -->
+    <string name="review_content_default">There are no reviews for this movie.</string>
+
 </resources>

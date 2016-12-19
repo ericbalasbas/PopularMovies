@@ -4,13 +4,22 @@
 
 package com.example.eric.popularmovies;
 
+import android.content.Intent;
 import android.net.Uri;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 
+// TODO: Send bundle as argument to start tabs (save on db requests?)
 
-public class MovieDetailActivity extends AppCompatActivity implements MovieDetailFragment.OnFragmentInteractionListener{
+public class MovieDetailActivity extends AppCompatActivity
+        implements MovieDetailFragment.OnFragmentInteractionListener,
+        TrailersFragment.OnFragmentInteractionListener,
+        ReviewsFragment.OnFragmentInteractionListener {
+
+    private String MovieId;
 
     /**
      * Set Activity layout.
@@ -19,7 +28,33 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // The detail Activity called via intent.  Inspect the intent for forecast data.
+        Intent intent = this.getIntent();
+        if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
+            MovieId = intent.getStringExtra(Intent.EXTRA_TEXT);
+        }
+
         setContentView(R.layout.activity_movie_detail);
+
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
+        // https://github.com/codepath/android_guides/wiki/Google-Play-Style-Tabs-using-TabLayout
+        ViewPager viewPager = (ViewPager) findViewById(R.id.movie_detail_viewpager);
+
+        DetailPagerAdapter pagerAdapter = new DetailPagerAdapter(getSupportFragmentManager(), MovieId);
+
+        viewPager.setAdapter(pagerAdapter);
+
+        // Give the TabLayout the ViewPager
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.movie_detail_tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
+        // Iterate over all tabs and set the custom view
+        // to give each tab a custom view
+        // https://github.com/codepath/android_guides/wiki/Google-Play-Style-Tabs-using-TabLayout
+        // for (int i = 0; i < tabLayout.getTabCount(); i++) {
+        //     TabLayout.Tab tab = tabLayout.getTabAt(i);
+        //     tab.setCustomView(pagerAdapter.getTabView(i));
+        // }
     }
 
     /**

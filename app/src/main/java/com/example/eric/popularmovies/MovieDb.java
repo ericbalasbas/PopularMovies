@@ -233,6 +233,36 @@ class MovieDb {
     }
 
     /**
+     * Construct Uri to get movie reviews from the Movie DB.
+     * @param MovieId - movie_id field from the Movie DB
+     * @return Uri
+     *
+     * The Movie DB API documentation:
+     * Get Movie Reviews: https://developers.themoviedb.org/3/movies/get-movie-reviews
+     *
+     * Example: https://api.themoviedb.org/3/movie/{movie_id}/reviews?api_key=<<api_key>>&language=en-US
+     */
+    static Uri buildReviewsUri(String MovieId) {
+        final String language = "en-US";
+        final String MOVIE_BASE_URL = "https://api.themoviedb.org/3/movie/";
+        final String REVIEWS_PARAM = "reviews";
+        final String LANGUAGE_PARAM = "language";
+        final String API_KEY_PARAM = "api_key";
+
+        try {
+            return Uri.parse(MOVIE_BASE_URL).buildUpon()
+                    .appendPath(MovieId)
+                    .appendPath(REVIEWS_PARAM)
+                    .appendQueryParameter(LANGUAGE_PARAM, language)
+                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
+                    .build();
+        } catch (UnsupportedOperationException e) {
+            Log.e(LOG_TAG, "Error ", e);
+            return null;
+        }
+    }
+
+    /**
      * Return results from the Movie DB query JSON string as a list of Movie objects.
      * @param moviesJsonStr - movie list string in JSON format
      * @return List<Movie>
@@ -338,17 +368,72 @@ class MovieDb {
         for(int i = 0; i < movieArray.length(); i++) {
             JSONObject movieJson = movieArray.getJSONObject(i);
 
-            MovieTrailer movie = new MovieTrailer(movieJson.getString(MDB_ID),
+            MovieTrailer trailer = new MovieTrailer(movieJson.getString(MDB_ID),
                     movieId,
                     movieJson.getString(MDB_KEY),
                     movieJson.getString(MDB_NAME),
                     movieJson.getString(MDB_SITE),
                     movieJson.getString(MDB_SIZE),
-                    movieJson.getString(MDB_TYPE)); // remove all slashes
+                    movieJson.getString(MDB_TYPE));
 
-            results.add(movie);
+            results.add(trailer);
         }
 
         return results;
+    }
+
+    /**
+     * Return results from the Movie DB query JSON string as a list of Review objects.
+     * @param reviewsJsonStr - movie list string in JSON format
+     * @return List<Review>
+     * @throws JSONException
+     */
+    static List<Review> getReviewsDataFromJson(String reviewsJsonStr)
+            throws JSONException {
+
+        // The Movie DB get movie reviews query returns a movie id, and results array
+
+        // These are the names of the JSON objects that need to be extracted.
+        final String MDB_RESULTS = "results";
+        final String MDB_ID = "id";
+        final String MDB_AUTHOR = "author";
+        final String MDB_CONTENT = "content";
+        final String MDB_URL = "url";
+
+        JSONObject movieQueryResults = new JSONObject(reviewsJsonStr);
+        int movieId = movieQueryResults.getInt(MDB_ID);
+        JSONArray reviewArray = movieQueryResults.getJSONArray(MDB_RESULTS);
+
+        List<Review> results = new ArrayList<>();
+
+        for(int i = 0; i < reviewArray.length(); i++) {
+            JSONObject reviewJson = reviewArray.getJSONObject(i);
+
+            Review review = new Review(reviewJson.getString(MDB_ID),
+                    movieId,
+                    reviewJson.getString(MDB_AUTHOR),
+                    reviewJson.getString(MDB_CONTENT),
+                    reviewJson.getString(MDB_URL));
+
+            results.add(review);
+        }
+
+        return results;
+    }
+
+    static Uri buildYoutubeUri(MovieTrailer vMovieTrailer) {
+        final String BASE_URL = "http://www.youtube.com/watch";
+        final String KEY_PARAM = "v";
+
+        try {
+            return Uri.parse(BASE_URL).buildUpon()
+                    .appendQueryParameter(KEY_PARAM, vMovieTrailer.key)
+                    .build();
+        } catch (UnsupportedOperationException e) {
+            Log.e(LOG_TAG, "Error ", e);
+            return null;
+        }
+
+
     }
 }

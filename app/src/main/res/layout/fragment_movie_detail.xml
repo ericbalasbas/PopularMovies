@@ -5,7 +5,7 @@
 <RelativeLayout
     android:id="@+id/fragment_movie_detail"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     style="@style/AppTheme"
     tools:context="com.example.eric.popularmovies.MovieDetailFragment">
 
@@ -73,11 +73,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/hello_blank_fragment"/>
-    <WebView
-        android:id="@+id/trailer"
-        android:layout_below="@+id/overview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
 
 </RelativeLayout>
 </ScrollView>
