@@ -22,9 +22,6 @@ import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MovieDetailFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
  *
  * Use intent to send movie ID. Query movie DB again to get details.
  * Even though we have all of the data from the initial query, in Project Part 2 we will have to make
@@ -37,11 +34,9 @@ public class TrailersFragment extends Fragment {
     public static final String MOVIE_ID = "MOVIE_ID";
     private int mPage;
     private final String LOG_TAG = TrailersFragment.class.getSimpleName();
-    private TrailersFragment.OnFragmentInteractionListener mListener;
     private String MovieId;
 
-    protected static Movie movie;
-    protected static List<MovieTrailer> movieTrailers;
+    protected static ArrayList<MovieTrailer> movieTrailers;
     protected MovieTrailerListAdapter movieTrailerListAdapter;
 
     /** Required empty public constructor */
@@ -59,28 +54,22 @@ public class TrailersFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof TrailersFragment.OnFragmentInteractionListener) {
-            mListener = (TrailersFragment.OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         mPage = getArguments().getInt(ARG_PAGE);
         MovieId = getArguments().getString(MOVIE_ID);
+        Log.v(LOG_TAG, "onCreateView: MovieId: " + MovieId);
 
-        if (savedInstanceState != null && savedInstanceState.containsKey("movie")) {
-            movie = savedInstanceState.getParcelable("movie");
-            // TODO: load saved movieTrailerListAdapter here
+        if (savedInstanceState != null && savedInstanceState.containsKey("trailerList")) {
+            movieTrailers = savedInstanceState.getParcelableArrayList("trailerList");
+        } else {
+            movieTrailers = new ArrayList<MovieTrailer>();
         }
 
         // Inflate the layout for this fragment
-        // View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
         View rootView = DetailPagerAdapter.getTabView(mPage, getContext());
 
         // The detail Activity called via intent.  Inspect the intent for forecast data.
@@ -90,10 +79,11 @@ public class TrailersFragment extends Fragment {
         }
 
         // Get a reference to the Trailers ListView, and attach this adapter to it.
-        movieTrailerListAdapter = new MovieTrailerListAdapter(getActivity(), new ArrayList<MovieTrailer>());
+        movieTrailerListAdapter = new MovieTrailerListAdapter(getActivity(), movieTrailers);
         ListView listView = (ListView) rootView.findViewById(R.id.fragment_movie_trailers);
         listView.setAdapter(movieTrailerListAdapter);
 
+        // Start Youtube intent when clicking on trailer item
         // http://stackoverflow.com/questions/574195/android-youtube-app-play-video-intent
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -120,10 +110,8 @@ public class TrailersFragment extends Fragment {
         // http://stackoverflow.com/questions/6495898/findviewbyid-in-fragment
         // cannot use getView in onCreate(), onCreateView() methods of the fragment
 
-        Log.v(LOG_TAG, "onStart: mPage: " + Integer.toString(mPage));
-
         if (MovieDb.isOnline(getActivity())) { // if network is online, get movie detail
-            if (movie == null || movie.id != Integer.parseInt(MovieId)) {
+            if (movieTrailers == null || movieTrailers.size() == 0 || movieTrailers.get(0).movieId != Integer.parseInt(MovieId)) {
                 updateMovieTrailers(MovieId, movieTrailerListAdapter);
             }
         }
@@ -141,24 +129,9 @@ public class TrailersFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     *
-     *  Caused by: java.lang.RuntimeException: com.example.eric.popularmovies.MovieDetailActivity@466b5c5 must implement OnFragmentInteractionListener
-     */
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
-    }
+
 
 
     private void updateMovieTrailers(String vMovieId, MovieTrailerListAdapter vMovieTrailerListAdapter) {
@@ -168,8 +141,10 @@ public class TrailersFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        // outState.putParcelable("movie", movie);
-        // TODO: save movieTrailerList here
+        if (movieTrailers != null && !movieTrailers.isEmpty()) {
+            outState.putParcelableArrayList("trailerList", movieTrailers);
+        }
+
         super.onSaveInstanceState(outState);
     }
 }

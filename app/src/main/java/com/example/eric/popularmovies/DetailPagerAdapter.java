@@ -13,7 +13,7 @@ import android.view.View;
 
 
 /**
- * Created by eric on 12/16/2016.
+ * FragmentPagerAdapter class that loads the correct fragment and layout for each Movie Detail tab.
  */
 
 class DetailPagerAdapter extends FragmentPagerAdapter {

@@ -16,6 +16,9 @@
     <!-- Label for Highest Rated in Sort Order preference [CHAR LIMIT=25] -->
     <string name="pref_label_top_rated">Top Rated</string>
 
+    <!-- Label for Favorite in Sort Order preference [CHAR LIMIT=25] -->
+    <string name="pref_label_favorite">Favorite</string>
+
     <!-- Key name for Sort Order preference in SharedPreferences [CHAR LIMIT=NONE] -->
     <string name="pref_sort_order_key" translatable="false">sort_order</string>
 
@@ -31,9 +34,15 @@
           -->
     <string name="pref_top_rated" translatable="false">top_rated</string>
 
+    <!-- Value in SharedPreferences for Favorite option [CHAR LIMIT=NONE]   -->
+    <string name="pref_favorite" translatable="false">favorite</string>
+
     <string name="title_activity_settings">Settings</string>
 
     <!-- Default text for review content field -->
     <string name="review_content_default">There are no reviews for this movie.</string>
+
+    <string name="favorite_this_movie">Favorite this movie</string>
+    <string name="unfavorite_this_movie">Unfavorite this movie</string>
 
 </resources>

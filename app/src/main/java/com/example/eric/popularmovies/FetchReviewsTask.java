@@ -11,13 +11,13 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
+import java.util.ArrayList;
 
 /**
- * Created by eric on 12/18/2016.
+ * Fetch list of reviews for a movie in background thread, parse results and load list into reviewListAdapter.
  */
 
-class FetchReviewsTask extends AsyncTask<String, Void, List<Review>> {
+class FetchReviewsTask extends AsyncTask<String, Void, ArrayList<Review>> {
     private final String LOG_TAG = FetchReviewsTask.class.getSimpleName();
     private String MovieId;
     private ReviewListAdapter ReviewListAdapter;
@@ -30,7 +30,7 @@ class FetchReviewsTask extends AsyncTask<String, Void, List<Review>> {
     }
 
     @Override
-    protected List<Review> doInBackground(String... params) {
+    protected ArrayList<Review> doInBackground(String... params) {
         // Will contain the raw JSON response as a string.
         String ReviewsJsonStr;
 
@@ -62,11 +62,11 @@ class FetchReviewsTask extends AsyncTask<String, Void, List<Review>> {
      * @param result - movie object
      */
     @Override
-    protected void onPostExecute(List<Review> result) {
+    protected void onPostExecute(ArrayList<Review> result) {
         if (result != null) {
             // need to assign result, otherwise onSaveInstanceState does not work
-            //TODO: change to TrailersFragment.trailers
-            ReviewsFragment.reviews = result; // = new ArrayList<>(result);
+
+            ReviewsFragment.reviews = result;
             ReviewListAdapter.clear();
             ReviewListAdapter.addAll(result);
         }

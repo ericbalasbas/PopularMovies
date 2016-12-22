@@ -4,22 +4,20 @@
 
 package com.example.eric.popularmovies;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
+import java.util.ArrayList;
 
 /**
- * Created by eric on 12/13/2016.
+ * Fetch list of trailers for a movie in background thread, parse results and load list into movieTrailerListAdapter.
  */
 
-class FetchMovieTrailersTask extends AsyncTask<String, Void, List<MovieTrailer>> {
+class FetchMovieTrailersTask extends AsyncTask<String, Void, ArrayList<MovieTrailer>> {
     private final String LOG_TAG = FetchMovieTrailersTask.class.getSimpleName();
     private String MovieId;
     private MovieTrailerListAdapter movieTrailerListAdapter;
@@ -32,7 +30,7 @@ class FetchMovieTrailersTask extends AsyncTask<String, Void, List<MovieTrailer>>
     }
 
     @Override
-    protected List<MovieTrailer> doInBackground(String... params) {
+    protected ArrayList<MovieTrailer> doInBackground(String... params) {
         // Will contain the raw JSON response as a string.
         String movieTrailersJsonStr;
 
@@ -64,7 +62,7 @@ class FetchMovieTrailersTask extends AsyncTask<String, Void, List<MovieTrailer>>
      * @param result - movie object
      */
     @Override
-    protected void onPostExecute(List<MovieTrailer> result) {
+    protected void onPostExecute(ArrayList<MovieTrailer> result) {
         if (result != null) {
             // need to assign result, otherwise onSaveInstanceState does not work
             TrailersFragment.movieTrailers = result; // = new ArrayList<>(result);

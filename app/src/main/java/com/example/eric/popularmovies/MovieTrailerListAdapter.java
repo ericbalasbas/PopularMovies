@@ -13,9 +13,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-/**
- * Created by eric on 12/16/2016.
- */
 
 public class MovieTrailerListAdapter extends ArrayAdapter<MovieTrailer> {
 

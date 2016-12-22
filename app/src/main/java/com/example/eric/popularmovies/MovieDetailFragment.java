@@ -12,9 +12,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
@@ -25,9 +27,6 @@ import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MovieDetailFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
  *
  * Use intent to send movie ID. Query movie DB again to get details.
  * Even though we have all of the data from the initial query, in Project Part 2 we will have to make
@@ -38,12 +37,9 @@ public class MovieDetailFragment extends Fragment {
     public static final String MOVIE_ID = "MOVIE_ID";
     private int mPage;
     private final String LOG_TAG = MovieDetailFragment.class.getSimpleName();
-    private OnFragmentInteractionListener mListener;
     private String MovieId;
 
     protected static Movie movie;
-    protected static List<MovieTrailer> movieTrailers;
-    protected MovieTrailerListAdapter movieTrailerListAdapter;
 
     /** Required empty public constructor */
     public MovieDetailFragment() { }
@@ -60,12 +56,6 @@ public class MovieDetailFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
@@ -94,9 +84,6 @@ public class MovieDetailFragment extends Fragment {
         // cannot use getView in onCreate(), onCreateView() methods of the fragment
 
         View rootView = getView().findViewById(R.id.fragment_movie_detail);
-        Log.v(LOG_TAG, "onStart: mPage: " + Integer.toString(mPage));
-        // View rootView = DetailPagerAdapter.getTabView(mPage, this.getContext());
-        Log.v(LOG_TAG, "onStart: rootView.id: " + Integer.toString(rootView.getId()));
 
         if (MovieDb.isOnline(getActivity())) { // if network is online, get movie detail
             if (movie == null || movie.id != Integer.parseInt(MovieId)) {
@@ -116,30 +103,35 @@ public class MovieDetailFragment extends Fragment {
             toast.show();
         }
 
+        // check if movie is in Favorites, and set FavoriteButton
+        ToggleButton favoriteButton = (ToggleButton) getView().findViewById(R.id.favorite_button);
+        final FavoriteDbHelper dbHelper = new FavoriteDbHelper(getContext());
+
+        favoriteButton.setChecked(Favorite.findFavorite(dbHelper.getReadableDatabase(), Integer.parseInt(MovieId)));
+
+        favoriteButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // The toggle is enabled
+                    Favorite.addFavorite(dbHelper.getWritableDatabase(),
+                                         Integer.parseInt(MovieId),
+                                         movie.title,
+                                         movie.poster_path);
+                } else {
+                    // The toggle is disabled
+                    Favorite.deleteFavorite(dbHelper.getWritableDatabase(), Integer.parseInt(MovieId));
+                }
+            }
+        });
+
     }
 
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     *
-     *  Caused by: java.lang.RuntimeException: com.example.eric.popularmovies.MovieDetailActivity@466b5c5 must implement OnFragmentInteractionListener
-     */
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
-    }
 
 
     private void updateMovieDetail(String vMovieId, Movie vMovie, Context vContext, View vRootView) {

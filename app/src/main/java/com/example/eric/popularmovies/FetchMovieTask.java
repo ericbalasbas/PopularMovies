@@ -15,7 +15,9 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
-
+/**
+ * Fetch movie details in background thread, parse results and load list into a Movie object.
+ */
 
 class FetchMovieTask extends AsyncTask<String, Void, Movie> {
     private final String LOG_TAG = FetchMovieTask.class.getSimpleName();

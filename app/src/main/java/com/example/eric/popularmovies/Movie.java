@@ -63,6 +63,7 @@ class Movie implements Parcelable {
     {
         this(vId, vTitle, vPoster_path, "", new Date(), 0.0, 0.0);
     }
+
     Movie(int vId, String vTitle, String vPoster_path, String vOverview, Date vRelease_date,
                  Double vVote_average, Double vPopularity)
     {
@@ -74,4 +75,5 @@ class Movie implements Parcelable {
         this.vote_average = vVote_average;
         this.popularity = vPopularity;
     }
+
 }

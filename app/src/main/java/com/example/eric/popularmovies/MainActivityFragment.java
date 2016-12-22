@@ -6,7 +6,9 @@ package com.example.eric.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,7 +28,6 @@ public class MainActivityFragment extends Fragment {
     private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     public MovieListAdapter movieListAdapter;
     protected static ArrayList<Movie> movieList;
-    protected static ArrayList<Movie> favoritesList;
     protected static boolean sortOrderChanged = true;
 
     /** Required empty public constructor */
@@ -35,9 +36,6 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState!= null && savedInstanceState.containsKey("favoritesList")) {
-            favoritesList = savedInstanceState.getParcelableArrayList("favoritesList");
-        }
     }
 
 
@@ -53,6 +51,10 @@ public class MainActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("movieList")) {
+            movieList = savedInstanceState.getParcelable("movieList");
+        }
 
         if (movieList != null && !sortOrderChanged) {
             movieListAdapter = new MovieListAdapter(getActivity(), movieList);
@@ -93,9 +95,14 @@ public class MainActivityFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        // NOTE: values in strings.xml for pref_sort_order_key must match the Movie DB API
+        String sortOrder = prefs.getString(getContext().getString(R.string.pref_sort_order_key), getContext().getString(R.string.pref_most_popular));
+
         if (MovieDb.isOnline(getActivity())) {  // if network is online, get movie list
-            if (movieList == null || sortOrderChanged) {
-                updateMovieList();
+            if (movieList == null || sortOrderChanged || sortOrder.equals("favorite")) {
+                updateMovieList(sortOrder);
                 sortOrderChanged = false;
             }
         }
@@ -110,9 +117,16 @@ public class MainActivityFragment extends Fragment {
     }
 
 
-    private void updateMovieList() {
-        FetchMovieListTask movieTask = new FetchMovieListTask(getActivity(), getContext(), movieListAdapter);
-        movieTask.execute();
+    private void updateMovieList(String sortOrder) {
+        // if sortOrder is "favorite" always query database
+        if (sortOrder.equals(getContext().getString(R.string.pref_favorite))) {
+            FetchFavoriteListTask favoriteListTask = new FetchFavoriteListTask(getContext(), movieListAdapter);
+            favoriteListTask.execute();
+        } else {
+            FetchMovieListTask movieTask = new FetchMovieListTask(getActivity(), getContext(), movieListAdapter,
+                                                                  sortOrder);
+            movieTask.execute();
+        }
     }
 
 
@@ -122,9 +136,6 @@ public class MainActivityFragment extends Fragment {
             outState.putParcelableArrayList("movieList", movieList);
         }
 
-        if (favoritesList != null && !favoritesList.isEmpty()) {
-            outState.putParcelableArrayList("favoritesList", favoritesList);
-        }
         super.onSaveInstanceState(outState);
     }
 }

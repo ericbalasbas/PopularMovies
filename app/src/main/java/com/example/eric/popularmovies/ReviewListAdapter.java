@@ -13,9 +13,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-/**
- * Created by eric on 12/18/2016.
- */
+
 
 public class ReviewListAdapter extends ArrayAdapter<Review> {
 

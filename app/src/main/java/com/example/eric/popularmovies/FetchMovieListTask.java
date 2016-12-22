@@ -27,13 +27,16 @@ class FetchMovieListTask extends AsyncTask<String, Void, List<Movie>> {
     private Activity activity;
     private Context context;
     private MovieListAdapter movieListAdapter;
+    private String sortOrder;
 
-    FetchMovieListTask(Activity vActivity, Context vContext, MovieListAdapter vMovieListAdapter) {
+    FetchMovieListTask(Activity vActivity, Context vContext, MovieListAdapter vMovieListAdapter,
+                       String vSortOrder) {
         super();
         // set activity, set movieListAdapter
         activity = vActivity;
         context = vContext;
         movieListAdapter = vMovieListAdapter;
+        sortOrder = vSortOrder;
     }
 
     @Override
@@ -42,11 +45,6 @@ class FetchMovieListTask extends AsyncTask<String, Void, List<Movie>> {
         String moviesJsonStr;
 
         try {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-
-            // NOTE: values in strings.xml for pref_sort_order_key must match the Movie DB API
-            String sortOrder = prefs.getString(context.getString(R.string.pref_sort_order_key), context.getString(R.string.pref_most_popular));
-
             // catch IOException already catches MalformedURLException, no need to test for
             // null url strings here
 

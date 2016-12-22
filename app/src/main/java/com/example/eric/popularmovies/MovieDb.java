@@ -343,7 +343,7 @@ class MovieDb {
      * @return List<MovieTrailer>
      * @throws JSONException
      */
-    static List<MovieTrailer> getMovieTrailersDataFromJson(String movieTrailersJsonStr)
+    static ArrayList<MovieTrailer> getMovieTrailersDataFromJson(String movieTrailersJsonStr)
             throws JSONException {
 
         // The Movie DB get movie videos query returns a movie id, and results array
@@ -363,7 +363,7 @@ class MovieDb {
         JSONArray movieArray = movieQueryResults.getJSONArray(MDB_RESULTS);
         int movieId = movieQueryResults.getInt(MDB_ID);
 
-        List<MovieTrailer> results = new ArrayList<>();
+        ArrayList<MovieTrailer> results = new ArrayList<>();
 
         for(int i = 0; i < movieArray.length(); i++) {
             JSONObject movieJson = movieArray.getJSONObject(i);
@@ -388,7 +388,7 @@ class MovieDb {
      * @return List<Review>
      * @throws JSONException
      */
-    static List<Review> getReviewsDataFromJson(String reviewsJsonStr)
+    static ArrayList<Review> getReviewsDataFromJson(String reviewsJsonStr)
             throws JSONException {
 
         // The Movie DB get movie reviews query returns a movie id, and results array
@@ -404,7 +404,7 @@ class MovieDb {
         int movieId = movieQueryResults.getInt(MDB_ID);
         JSONArray reviewArray = movieQueryResults.getJSONArray(MDB_RESULTS);
 
-        List<Review> results = new ArrayList<>();
+        ArrayList<Review> results = new ArrayList<>();
 
         for(int i = 0; i < reviewArray.length(); i++) {
             JSONObject reviewJson = reviewArray.getJSONObject(i);
